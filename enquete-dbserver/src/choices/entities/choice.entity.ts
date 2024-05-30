@@ -6,10 +6,10 @@ export class Choice {
     @PrimaryGeneratedColumn()
     choice_id: number;
 
-    @Column()
+    @Column({type: 'varchar', length: 255, nullable: false})
     choice_text: string;
 
-    @Column()
+    @Column({type: 'int', nullable: false, default: 0})
     vote_counter: number;
     
     @ManyToOne(() => Question, question => question.choices)

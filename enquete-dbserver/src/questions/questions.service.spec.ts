@@ -65,6 +65,32 @@ describe('QuestionsService', () => {
       expect(await service.findOne(1)).toBeNull();
     });
   });
+  describe('findOneByFormId', () => {
+    it('指定されたフォームIDのクエスチョンの配列が返ってくるべき', async () => {
+      const questionsArray = [
+        {
+          question_id: 1,
+          question_text: 'Question 1',
+          form: null,
+          choices: [],
+        },
+        {
+          question_id: 2,
+          question_text: 'Question 2',
+          form: null,
+          choices: [],
+        },
+      ];
+      jest.spyOn(repository, 'find').mockResolvedValue(questionsArray);
+
+      expect(await service.findOneByFormId(1)).toEqual(questionsArray);
+    });
+    it('指定されたフォームIDのクエスチョンが無かったら空の配列が返ってくるべき', async () => {
+      jest.spyOn(repository, 'find').mockResolvedValue([]);
+
+      expect(await service.findOneByFormId(1)).toEqual([]);
+    });
+  });
 
   describe('create', () => {
     it('クエスチョンが作成され、そのクエスチョンが返ってくるべき', async () => {

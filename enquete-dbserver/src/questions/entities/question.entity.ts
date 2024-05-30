@@ -8,10 +8,10 @@ export class Question {
     @PrimaryGeneratedColumn()
     question_id: number;
 
-    @Column()
+    @Column({type: 'varchar', length: 255, nullable: false})
     question_text: string;
 
-    @ManyToOne(() => Form, form => form.questions,{eager: true})
+    @ManyToOne(() => Form, form => form.questions, { eager: true })
     form: Form;
 
     @OneToMany(() => Choice, choice => choice.question,{eager: true})

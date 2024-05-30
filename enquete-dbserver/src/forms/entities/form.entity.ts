@@ -5,7 +5,7 @@ export class Form {
     @PrimaryGeneratedColumn()
     form_id: number;
 
-    @Column()
+    @Column({type: 'varchar', length: 255, nullable: false})
     form_title: string;
     
     @OneToMany(() => Question, question => question.form)

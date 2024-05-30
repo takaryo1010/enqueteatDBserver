@@ -57,6 +57,32 @@ describe('QuestionsController', () => {
     });
   });
 
+  describe('findOneByFormId', () => {
+    it('指定されたフォームIDのクエスチョンの配列が返ってくるべき', async () => {
+      const result = [
+        {
+          question_id: 1,
+          question_text: 'Question 1',
+          form: null,
+          choices: [],
+        },
+        {
+          question_id: 2,
+          question_text: 'Question 2',
+          form: null,
+          choices: [],
+        },
+      ];
+      jest.spyOn(controller, 'findOneByFormId').mockResolvedValue(result);
+
+      expect(await controller.findOneByFormId(1)).toEqual(result);
+    });
+    it('指定されたフォームIDのクエスチョンが無かったら空の配列が返ってくるべき', async () => {
+      jest.spyOn(controller, 'findOneByFormId').mockResolvedValue([]);
+
+      expect(await controller.findOneByFormId(1)).toEqual([]);
+    });
+  });
   describe('create', () => {
     it('クエスチョンが作成され、そのクエスチョンが返ってくるべき', async () => {
       const result = {
