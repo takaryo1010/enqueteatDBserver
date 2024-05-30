@@ -1,0 +1,105 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+.form-group,
+.question-group,
+.choice-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-input {
+  width: calc(100% - 40px);
+  padding: 10px;
+  margin-right: 10px;
+  margin-bottom: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.choice-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.choice-box {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.choice-label {
+  white-space: nowrap; 
+  margin-right: 10px;
+}
+
+.choice-input {
+  width: calc(100% - 60px); 
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.question-box {
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.add-button,
+.remove-button,
+.submit-button {
+  padding: 10px 10px; 
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+.cross-button{
+    padding: 5px 10px; 
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    background-color: #f44336;
+    margin-bottom: 7px;
+}
+.add-button {
+  background-color: #4caf50;
+}
+
+.remove-button {
+  background-color: #f44336;
+}
+
+.submit-button {
+  background-color: #008cba;
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+}
+
+button:hover {
+  opacity: 0.8;
+}
