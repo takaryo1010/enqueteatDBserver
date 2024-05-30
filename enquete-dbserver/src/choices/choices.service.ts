@@ -22,13 +22,17 @@ export class ChoicesService {
   create(choice: CreateChoiceDto): Promise<Choice> {
     return this.choicesRepository.save(choice);
   }
-  async update(id: number, updateChoiceDto: UpdateChoiceDto): Promise<Choice> {
-    const choice = await this.findOne(id);
+
+  async vote(id: number, updateChoiceDto: UpdateChoiceDto): Promise<Choice> {
+    const choice = await this.choicesRepository.findOneBy({ choice_id: id });
     if (!choice) {
       throw new Error('Choice not found');
     }
-    choice.vote_counter += 1;
-    return this.choicesRepository.save(choice);
+
+    choice.vote_counter++;
+    const updatedChoice: Choice = await this.choicesRepository.save(choice);
+
+    return updatedChoice;
   }
 
   async remove(id: number): Promise<void> {

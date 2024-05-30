@@ -21,9 +21,9 @@ export class ChoicesController {
   create(@Body() createChoiceDto: CreateChoiceDto): Promise<Choice>{
     return this.choicesService.create(createChoiceDto);
   }
-  @Patch(':id/choose')
-  update(@Param('id') id: number, @Body() updateChoiceDto: UpdateChoiceDto): Promise<Choice> {
-    return this.choicesService.update(id, updateChoiceDto);
+  @Patch(':id/vote')
+  vote(@Param('id') id: number, @Body() updateChoiceDto: UpdateChoiceDto): Promise<Choice> {
+    return this.choicesService.vote(id, updateChoiceDto);
   }
 
   @Delete(':id')
