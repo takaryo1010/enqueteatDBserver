@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Body, Injectable } from '@nestjs/common';
 import { CreateFormDto } from './dto/create-form.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -20,8 +20,8 @@ export class FormsService {
   }
 
   
-  create(form: Form): Promise<Form> {
-    return this.formsRepository.save(form);
+  create(@Body() createFormDto:CreateFormDto): Promise<Form> {
+    return this.formsRepository.save(createFormDto);
   }
 
   async remove(id: number): Promise<void> {

@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Body, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Question } from './entities/question.entity';
+import { CreateQuestionDto } from './dto/create-question.dto';
 @Injectable()
 export class QuestionsService {
   constructor(
@@ -20,8 +21,8 @@ export class QuestionsService {
     return this.questionsRepository.find({ where: { form: {form_id:formId} } });
   }
 
-  create(question: Question): Promise<Question> {
-    return this.questionsRepository.save(question);
+  create(@Body() createQuestionDto:CreateQuestionDto): Promise<Question> {
+    return this.questionsRepository.save(createQuestionDto);
   }
 
   async remove(id: number): Promise<void> {

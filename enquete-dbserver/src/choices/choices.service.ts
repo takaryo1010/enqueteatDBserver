@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Body, Injectable } from '@nestjs/common';
 import { CreateChoiceDto } from './dto/create-choice.dto';
 import { UpdateChoiceDto } from './dto/update-choice.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,18 +19,18 @@ export class ChoicesService {
     return this.choicesRepository.findOneBy({ choice_id: id });
   }
 
-  create(choice: CreateChoiceDto): Promise<Choice> {
-    return this.choicesRepository.save(choice);
+  create(@Body() createChoiceDto:CreateChoiceDto): Promise<Choice> {
+    return this.choicesRepository.save(createChoiceDto);
   }
 
   async vote(id: number, updateChoiceDto: UpdateChoiceDto): Promise<Choice> {
-    const choice = await this.choicesRepository.findOneBy({ choice_id: id });
-    if (!choice) {
+    updateChoiceDto = await this.choicesRepository.findOneBy({ choice_id: id });
+    if (!updateChoiceDto) {
       throw new Error('Choice not found');
     }
 
-    choice.vote_counter++;
-    const updatedChoice: Choice = await this.choicesRepository.save(choice);
+    updateChoiceDto.vote_counter++;
+    const updatedChoice: Choice = await this.choicesRepository.save(updateChoiceDto);
 
     return updatedChoice;
   }

@@ -188,7 +188,7 @@ export class QuestionsController {
     status: 200,
     description: '質問が正常に削除されました。',
   })
-  @ApiResponse({ status: 404, description: '質問が見つかりません。' })
+    @ApiResponse({ status: 404, description: '質問が見つかりません。' })
   remove(@Param('id') id: number): Promise<void> {
     return this.questionsService.remove(id);
   }
