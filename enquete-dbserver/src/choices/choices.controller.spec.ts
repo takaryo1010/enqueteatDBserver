@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ChoicesController } from './choices.controller';
 import { ChoicesService } from './choices.service';
-
+import { Choice } from './entities/choice.entity';
 const mockChoicesService = () => ({
   findAll: jest.fn(),
   findOne: jest.fn(),
@@ -16,7 +16,10 @@ describe('ChoicesController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ChoicesController],
-      providers: [ChoicesService, { provide: ChoicesService, useFactory: mockChoicesService }],
+      providers: [
+        ChoicesService,
+        { provide: ChoicesService, useFactory: mockChoicesService },
+      ],
     }).compile();
 
     controller = module.get<ChoicesController>(ChoicesController);
@@ -72,10 +75,10 @@ describe('ChoicesController', () => {
     });
   });
 
-  describe("delete", () => {
-    it("選択肢が削除されるべき", async () => {
+  describe('delete', () => {
+    it('選択肢が削除されるべき', async () => {
       const id = 1;
-      jest.spyOn(controller, "remove").mockResolvedValue(undefined);
+      jest.spyOn(controller, 'remove').mockResolvedValue(undefined);
 
       expect(await controller.remove(id)).toBeUndefined();
     });
@@ -83,22 +86,25 @@ describe('ChoicesController', () => {
 
   describe('vote', () => {
     it('指定した選択肢が更新されるべき', async () => {
-      const result = {
+      const choice = {
         choice_id: 1,
         choice_text: 'Choice 1',
         vote_counter: 1,
         question: null,
       };
-      jest.spyOn(controller, 'vote').mockResolvedValue(result);
-
-      expect(await controller.vote(1, { vote_counter: 1 })).toEqual(result);
+      jest.spyOn(controller, 'vote').mockResolvedValue(choice);
+      let newChoice: Choice = { ...choice, vote_counter: 1 };
+      let real: Choice = await controller.vote(choice.choice_id, choice);
+      expect(await controller.vote(1,choice)).toEqual(newChoice);
     });
     it('選択肢が見つからなかったらエラーが返ってくるべき', async () => {
-      jest.spyOn(controller, 'vote').mockRejectedValue(new Error('Choice not found'));
+      jest
+        .spyOn(controller, 'vote')
+        .mockRejectedValue(new Error('Choice not found'));
 
-      expect(controller.vote(1, { vote_counter: 1 })).rejects.toThrowError('Choice not found');
+      expect(controller.vote(1,null)).rejects.toThrowError(
+        'Choice not found',
+      );
     });
   });
-
-
 });
