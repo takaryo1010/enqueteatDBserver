@@ -24,7 +24,7 @@ export class QuestionsService {
   create(@Body() createQuestionDto:CreateQuestionDto): Promise<Question> {
     return this.questionsRepository.save(createQuestionDto);
   }
-
+  
   async remove(id: number): Promise<void> {
     await this.questionsRepository.delete(id);
   }
