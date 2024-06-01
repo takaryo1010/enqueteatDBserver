@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './Home.css';
 
 export const Home = (): JSX.Element => {
+  const url = "http://localhost:3000/";
   const [formTitle, setFormTitle] = useState('');
   const [questions, setQuestions] = useState([
     { questionText: '', choices: [''] },
@@ -48,9 +49,32 @@ export const Home = (): JSX.Element => {
     newQuestions[qIndex].choices.splice(cIndex, 1);
     setQuestions(newQuestions);
   };
+const emailSend = () => {
+      console.log("ただいま、メールを送信してます");
 
+      fetch(url + "forms", {
+        method: "GET",
+        // HTTP リクエストのメソッド
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // サーバーへ送るファイルはJSONファイルであることを宣言
+
+        // 送るデータをJSON形式に変換する
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          // .thenは成功した時の処理を示す場合に使う。
+          console.log("Success:", data);
+        })
+        .catch((error) => {
+          // .catchは失敗の時の処理を示す場合に使う。
+          console.error("Error:", error);
+        });
+    };
   const handleSubmit = () => {
     // サーバーにデータを送信する処理を追加
+    emailSend();
     console.log({ formTitle, questions });
   };
 
