@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import "./Home.css";
 import { Popup } from "./Popup";
 
-
 export const Home = (): JSX.Element => {
   const url = "http://localhost:3000/";
   const [form_title, setform_title] = useState("");
-  const [questions, setQuestions] = useState([{ question_text: "", choices: [""] }]);
+  const [questions, setQuestions] = useState([
+    { question_text: "", choices: [""] },
+  ]);
   const [form_id, setform_id] = useState<number | null>(null);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
@@ -32,7 +33,11 @@ export const Home = (): JSX.Element => {
     setQuestions(newQuestions);
   };
 
-  const handleChoiceChange = (qIndex: number, cIndex: number, value: string) => {
+  const handleChoiceChange = (
+    qIndex: number,
+    cIndex: number,
+    value: string
+  ) => {
     const newQuestions = [...questions];
     newQuestions[qIndex].choices[cIndex] = value;
     setQuestions(newQuestions);
@@ -59,7 +64,6 @@ export const Home = (): JSX.Element => {
     newQuestions[qIndex].choices.splice(cIndex, 1);
     setQuestions(newQuestions);
   };
-
   const emailSend = async () => {
     if (form_title === "") {
       alert("フォームタイトルを入力してください");
@@ -89,8 +93,15 @@ export const Home = (): JSX.Element => {
         }
       }
     }
-    await sendForm();
-    await sendQuestions();
+    try {
+      const form_id = await sendForm(); // フォームを送信し、form_idを取得
+      console.log("form_id", form_id);
+      setform_id(form_id);
+      await sendQuestions(form_id); // 取得したフォームIDを引数にして質問を送信
+      setIsPopupVisible(true);
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   const sendForm = async () => {
@@ -104,18 +115,20 @@ export const Home = (): JSX.Element => {
       });
       const data = await response.json();
       console.log("Success:", data);
-      setform_id(data.form_id);
-      setIsPopupVisible(true);
+      return data.form_id; // ここでフォームIDを返す
     } catch (error) {
       console.error("Error:", error);
+      throw error;
     }
   };
 
-  const sendQuestions = async () => {
-    if (!form_id) return;
-
+  const sendQuestions = async (form_id: number) => {
     for (let i = 0; i < questions.length; i++) {
-      const question: question = { question_text: questions[i].question_text, form: { form_id: form_id } };
+      const question: question = {
+        question_text: questions[i].question_text,
+        form: { form_id },
+      };
+      console.log(question);
       try {
         const response = await fetch(url + "questions", {
           method: "POST",
@@ -128,24 +141,32 @@ export const Home = (): JSX.Element => {
         console.log("Success:", data);
         const question_id = data.question_id;
 
-        for (let j = 0; j < questions[i].choices.length; j++) {
-          const choice: choice = { choice_text: questions[i].choices[j], question: { question_id } };
-          try {
-            const choiceResponse = await fetch(url + "choices", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(choice),
-            });
-            const choiceData = await choiceResponse.json();
-            console.log("Success:", choiceData);
-          } catch (error) {
-            console.error("Error:", error);
-          }
-        }
+        // 選択肢を並行して送信するため、Promise.allを使用
+        await Promise.all(
+          questions[i].choices.map(async (choiceText: string) => {
+            const choice: choice = {
+              choice_text: choiceText,
+              question: { question_id },
+            };
+            try {
+              const choiceResponse = await fetch(url + "choices", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(choice),
+              });
+              const choiceData = await choiceResponse.json();
+              console.log("Success:", choiceData);
+            } catch (error) {
+              console.error("Error:", error);
+              throw error;
+            }
+          })
+        );
       } catch (error) {
         console.error("Error:", error);
+        throw error;
       }
     }
   };
@@ -183,26 +204,48 @@ export const Home = (): JSX.Element => {
             />
             {question.choices.map((choice, cIndex) => (
               <div key={cIndex} className="choice-group">
-                <label className="form-label choice-label">選択肢{cIndex + 1}:</label>
+                <label className="form-label choice-label">
+                  選択肢{cIndex + 1}:
+                </label>
                 <div className="choice-box">
                   <input
                     className="form-input choice-input"
                     type="text"
                     value={choice}
-                    onChange={(e) => handleChoiceChange(qIndex, cIndex, e.target.value)}
+                    onChange={(e) =>
+                      handleChoiceChange(qIndex, cIndex, e.target.value)
+                    }
                   />
-                  <button className="cross-button" onClick={() => removeChoice(qIndex, cIndex)}>✕</button>
+                  <button
+                    className="cross-button"
+                    onClick={() => removeChoice(qIndex, cIndex)}
+                  >
+                    ✕
+                  </button>
                 </div>
               </div>
             ))}
-            <button className="add-button" onClick={() => addChoice(qIndex)}>選択肢を追加</button>
-            <button className="remove-button" onClick={() => removeQuestion(qIndex)}>質問を削除</button>
+            <button className="add-button" onClick={() => addChoice(qIndex)}>
+              選択肢を追加
+            </button>
+            <button
+              className="remove-button"
+              onClick={() => removeQuestion(qIndex)}
+            >
+              質問を削除
+            </button>
           </div>
         </div>
       ))}
-      <button className="add-button" onClick={addQuestion}>質問を追加</button>
-      <button className="submit-button" onClick={handleSubmit}>フォームを送信</button>
-      {isPopupVisible && <Popup form_id={form_id} onClose={handleClosePopup} />}
+      <button className="add-button" onClick={addQuestion}>
+        質問を追加
+      </button>
+      <button className="submit-button" onClick={handleSubmit}>
+        フォームを送信
+      </button>
+      {isPopupVisible && (
+        <Popup form_id={form_id} onClose={handleClosePopup} />
+      )}
     </div>
   );
 };

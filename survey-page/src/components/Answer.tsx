@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./Answer.css";
+import { url } from "inspector";
 
 const Answer: React.FC = () => {
   const { form_id } = useParams<{ form_id: string }>();
   const [questions, setQuestions] = useState<any[]>([]);
-  const [selectedChoices, setSelectedChoices] = useState<{
-    [key: number]: number[];
-  }>({});
-
+  const [selectedChoices, setSelectedChoices] = useState<number[]>([]); // クエスチョンIDに関係なく選択された選択肢のIDを格納する配列
+  const url = `http://localhost:3000/`;
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/questions/${form_id}/form`
+          `${url}questions/${form_id}/form`
         );
         const data = await response.json();
         setQuestions(data);
@@ -25,36 +24,30 @@ const Answer: React.FC = () => {
     fetchData();
   }, [form_id]);
 
-  const handleChoiceToggle = (questionId: number, choiceId: number) => {
+  const handleChoiceToggle = (choiceId: number) => {
     setSelectedChoices((prevChoices) => {
-      const selected = prevChoices[questionId] || [];
-      const index = selected.indexOf(choiceId);
+      const index = prevChoices.indexOf(choiceId);
       if (index === -1) {
-        return {
-          ...prevChoices,
-          [questionId]: [...selected, choiceId],
-        };
+        return [...prevChoices, choiceId]; // 選択された選択肢IDを配列に追加
       } else {
-        return {
-          ...prevChoices,
-          [questionId]: selected.filter((id) => id !== choiceId),
-        };
+        return prevChoices.filter((id) => id !== choiceId); // 選択された選択肢IDを配列から削除
       }
     });
   };
 
   const handleSubmit = async () => {
-    try {
-      const response = await fetch(`http://localhost:3000/vote`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(selectedChoices),
-      });
-      // Handle response as needed
-    } catch (error) {
-      console.error("Error submitting votes:", error);
+    console.log(selectedChoices);
+    for (const choiceId of selectedChoices) {
+      try {
+        await fetch(
+          `${url}choices/${choiceId}/vote`,
+          {
+            method: "PATCH",
+          }
+        );
+      } catch (error) {
+        console.error("Error submitting data:", error);
+      }
     }
   };
 
@@ -72,15 +65,11 @@ const Answer: React.FC = () => {
                   <span>{choice.choice_text}</span>
                   <button
                     className={
-                      selectedChoices[question.question_id]?.includes(
-                        choice.choice_id
-                      )
+                      selectedChoices.includes(choice.choice_id) // 選択された選択肢IDが配列に含まれているかを確認
                         ? "selected"
                         : "unselected"
                     }
-                    onClick={() =>
-                      handleChoiceToggle(question.question_id, choice.choice_id)
-                    }
+                    onClick={() => handleChoiceToggle(choice.choice_id)}
                   >
                     選択
                   </button>
@@ -99,14 +88,15 @@ const Answer: React.FC = () => {
                     }%`,
                   }}
                 >
-                  
-                  {Math.ceil((choice.vote_counter /
-                    question.choices.reduce(
-                      (total: number, choice: any) =>
-                        total + choice.vote_counter,
-                      0
-                    )) *
-                    100)}
+                  {Math.ceil(
+                    (choice.vote_counter /
+                      question.choices.reduce(
+                        (total: number, choice: any) =>
+                          total + choice.vote_counter,
+                        0
+                      )) *
+                      100
+                  )}
                   %
                 </div>
               </li>
