@@ -1,35 +1,45 @@
-import React, { useState } from 'react';
-import './Home.css';
+import React, { useState } from "react";
+import "./Home.css";
+import { Popup } from "./Popup";
+
 
 export const Home = (): JSX.Element => {
   const url = "http://localhost:3000/";
-  const [formTitle, setFormTitle] = useState('');
-  const [questions, setQuestions] = useState([
-    { questionText: '', choices: [''] },
-  ]);
+  const [form_title, setform_title] = useState("");
+  const [questions, setQuestions] = useState([{ question_text: "", choices: [""] }]);
+  const [form_id, setform_id] = useState<number | null>(null);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
 
-  const handleFormTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormTitle(e.target.value);
+  type question = {
+    question_text: string;
+    form: form;
+  };
+  type form = {
+    form_id: number;
+  };
+  type choice = {
+    choice_text: string;
+    question: { question_id: number };
+  };
+
+  const handleform_titleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setform_title(e.target.value);
   };
 
   const handleQuestionChange = (index: number, value: string) => {
     const newQuestions = [...questions];
-    newQuestions[index].questionText = value;
+    newQuestions[index].question_text = value;
     setQuestions(newQuestions);
   };
 
-  const handleChoiceChange = (
-    qIndex: number,
-    cIndex: number,
-    value: string,
-  ) => {
+  const handleChoiceChange = (qIndex: number, cIndex: number, value: string) => {
     const newQuestions = [...questions];
     newQuestions[qIndex].choices[cIndex] = value;
     setQuestions(newQuestions);
   };
 
   const addQuestion = () => {
-    setQuestions([...questions, { questionText: '', choices: [''] }]);
+    setQuestions([...questions, { question_text: "", choices: [""] }]);
   };
 
   const removeQuestion = (index: number) => {
@@ -40,7 +50,7 @@ export const Home = (): JSX.Element => {
 
   const addChoice = (qIndex: number) => {
     const newQuestions = [...questions];
-    newQuestions[qIndex].choices.push('');
+    newQuestions[qIndex].choices.push("");
     setQuestions(newQuestions);
   };
 
@@ -49,33 +59,104 @@ export const Home = (): JSX.Element => {
     newQuestions[qIndex].choices.splice(cIndex, 1);
     setQuestions(newQuestions);
   };
-const emailSend = () => {
-      console.log("ただいま、メールを送信してます");
 
-      fetch(url + "forms", {
-        method: "GET",
-        // HTTP リクエストのメソッド
+  const emailSend = async () => {
+    if (form_title === "") {
+      alert("フォームタイトルを入力してください");
+      return;
+    }
+    if (form_title.length > 100) {
+      alert("フォームタイトルは100文字以内で入力してください");
+      return;
+    }
+    for (let i = 0; i < questions.length; i++) {
+      if (questions[i].question_text === "") {
+        alert("質問文を入力してください");
+        return;
+      }
+      if (questions[i].question_text.length > 100) {
+        alert("質問文は100文字以内で入力してください");
+        return;
+      }
+      for (let j = 0; j < questions[i].choices.length; j++) {
+        if (questions[i].choices[j] === "") {
+          alert("選択肢を入力してください");
+          return;
+        }
+        if (questions[i].choices[j].length > 100) {
+          alert("選択肢は100文字以内で入力してください");
+          return;
+        }
+      }
+    }
+    await sendForm();
+    await sendQuestions();
+  };
+
+  const sendForm = async () => {
+    try {
+      const response = await fetch(url + "forms", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        // サーバーへ送るファイルはJSONファイルであることを宣言
+        body: JSON.stringify({ form_title }),
+      });
+      const data = await response.json();
+      console.log("Success:", data);
+      setform_id(data.form_id);
+      setIsPopupVisible(true);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
-        // 送るデータをJSON形式に変換する
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          // .thenは成功した時の処理を示す場合に使う。
-          console.log("Success:", data);
-        })
-        .catch((error) => {
-          // .catchは失敗の時の処理を示す場合に使う。
-          console.error("Error:", error);
+  const sendQuestions = async () => {
+    if (!form_id) return;
+
+    for (let i = 0; i < questions.length; i++) {
+      const question: question = { question_text: questions[i].question_text, form: { form_id: form_id } };
+      try {
+        const response = await fetch(url + "questions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(question),
         });
-    };
+        const data = await response.json();
+        console.log("Success:", data);
+        const question_id = data.question_id;
+
+        for (let j = 0; j < questions[i].choices.length; j++) {
+          const choice: choice = { choice_text: questions[i].choices[j], question: { question_id } };
+          try {
+            const choiceResponse = await fetch(url + "choices", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(choice),
+            });
+            const choiceData = await choiceResponse.json();
+            console.log("Success:", choiceData);
+          } catch (error) {
+            console.error("Error:", error);
+          }
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+  };
+
   const handleSubmit = () => {
-    // サーバーにデータを送信する処理を追加
     emailSend();
-    console.log({ formTitle, questions });
+  };
+
+  const handleClosePopup = () => {
+    setIsPopupVisible(false);
+    setform_id(null);
   };
 
   return (
@@ -86,8 +167,8 @@ const emailSend = () => {
         <input
           className="form-input"
           type="text"
-          value={formTitle}
-          onChange={handleFormTitleChange}
+          value={form_title}
+          onChange={handleform_titleChange}
         />
       </div>
       {questions.map((question, qIndex) => (
@@ -97,50 +178,31 @@ const emailSend = () => {
             <input
               className="form-input"
               type="text"
-              value={question.questionText}
+              value={question.question_text}
               onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
             />
             {question.choices.map((choice, cIndex) => (
               <div key={cIndex} className="choice-group">
-                <label className="form-label choice-label">
-                  選択肢{cIndex + 1}:
-                </label>
+                <label className="form-label choice-label">選択肢{cIndex + 1}:</label>
                 <div className="choice-box">
                   <input
                     className="form-input choice-input"
                     type="text"
                     value={choice}
-                    onChange={(e) =>
-                      handleChoiceChange(qIndex, cIndex, e.target.value)
-                    }
+                    onChange={(e) => handleChoiceChange(qIndex, cIndex, e.target.value)}
                   />
-                  <button
-                    className="cross-button"
-                    onClick={() => removeChoice(qIndex, cIndex)}
-                  >
-                    ✕
-                  </button>
+                  <button className="cross-button" onClick={() => removeChoice(qIndex, cIndex)}>✕</button>
                 </div>
               </div>
             ))}
-            <button className="add-button" onClick={() => addChoice(qIndex)}>
-              選択肢を追加
-            </button>
-            <button
-              className="remove-button"
-              onClick={() => removeQuestion(qIndex)}
-            >
-              質問を削除
-            </button>
+            <button className="add-button" onClick={() => addChoice(qIndex)}>選択肢を追加</button>
+            <button className="remove-button" onClick={() => removeQuestion(qIndex)}>質問を削除</button>
           </div>
         </div>
       ))}
-      <button className="add-button" onClick={addQuestion}>
-        質問を追加
-      </button>
-      <button className="submit-button" onClick={handleSubmit}>
-        フォームを送信
-      </button>
+      <button className="add-button" onClick={addQuestion}>質問を追加</button>
+      <button className="submit-button" onClick={handleSubmit}>フォームを送信</button>
+      {isPopupVisible && <Popup form_id={form_id} onClose={handleClosePopup} />}
     </div>
   );
 };
