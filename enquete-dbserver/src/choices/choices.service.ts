@@ -23,8 +23,8 @@ export class ChoicesService {
     return this.choicesRepository.save(createChoiceDto);
   }
 
-  async vote(id: number, updateChoiceDto: UpdateChoiceDto): Promise<Choice> {
-    updateChoiceDto = await this.choicesRepository.findOneBy({ choice_id: id });
+  async vote(id: number): Promise<Choice> {
+    const updateChoiceDto:UpdateChoiceDto = await this.choicesRepository.findOneBy({ choice_id: id });
     if (!updateChoiceDto) {
       throw new Error('Choice not found');
     }

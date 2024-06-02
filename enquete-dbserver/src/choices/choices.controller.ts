@@ -145,14 +145,6 @@ export class ChoicesController {
     description: '選択肢に投票します。',
   })
   @ApiParam({ name: 'id', description: '投票する選択肢のID' })
-  @ApiBody({
-    schema: {
-      example: {
-        vote_counter: 1,
-      },
-    },
-    description: '投票する選択肢の詳細',
-  })
   @ApiResponse({
     status: 200,
     description: '選択肢が正常に投票されました。',
@@ -166,9 +158,8 @@ export class ChoicesController {
   })
   vote(
     @Param('id') id: number,
-    @Body() updateChoiceDto: UpdateChoiceDto,
   ): Promise<Choice> {
-    return this.choicesService.vote(id, updateChoiceDto);
+    return this.choicesService.vote(id);
   }
 
   @Delete(':id')

@@ -105,8 +105,7 @@ describe('ChoicesService', () => {
       jest.spyOn(repository, 'save').mockResolvedValue(choice);
 
       let newChoice: Choice = { ...choice, vote_counter: 1 };
-      let real:Choice =await service.vote(choice.choice_id, choice);
-      console.log(real);
+      let real:Choice =await service.vote(choice.choice_id);
       expect(real).toEqual(newChoice);
     });
       it('指定した選択肢が存在しない場合、エラーが発生するべき', async () => {
@@ -118,7 +117,7 @@ describe('ChoicesService', () => {
           question: null,
         };
         try {
-          await service.vote(choice.choice_id, choice);
+          await service.vote(choice.choice_id);
         } catch (e) {
           expect(e.message).toBe('Choice not found');
         }

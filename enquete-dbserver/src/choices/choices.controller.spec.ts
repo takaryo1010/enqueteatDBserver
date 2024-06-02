@@ -94,15 +94,15 @@ describe('ChoicesController', () => {
       };
       jest.spyOn(controller, 'vote').mockResolvedValue(choice);
       let newChoice: Choice = { ...choice, vote_counter: 1 };
-      let real: Choice = await controller.vote(choice.choice_id, choice);
-      expect(await controller.vote(1,choice)).toEqual(newChoice);
+      let real: Choice = await controller.vote(choice.choice_id);
+      expect(await controller.vote(1)).toEqual(newChoice);
     });
     it('選択肢が見つからなかったらエラーが返ってくるべき', async () => {
       jest
         .spyOn(controller, 'vote')
         .mockRejectedValue(new Error('Choice not found'));
 
-      expect(controller.vote(1,null)).rejects.toThrowError(
+      expect(controller.vote(1)).rejects.toThrowError(
         'Choice not found',
       );
     });
