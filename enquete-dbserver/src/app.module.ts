@@ -8,6 +8,7 @@ import { Module } from '@nestjs/common';
 import { FormsModule } from './forms/forms.module';
 import { QuestionsModule } from './questions/questions.module';
 import { ChoicesModule } from './choices/choices.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ChoicesModule } from './choices/choices.module';
     FormsModule,
     QuestionsModule,
     ChoicesModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

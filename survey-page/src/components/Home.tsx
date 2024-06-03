@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Home.css";
 import { Popup } from "./Popup";
+import { env } from "process";
 
 export const Home = (): JSX.Element => {
   const url = "http://localhost:3000/";
@@ -10,6 +11,10 @@ export const Home = (): JSX.Element => {
   ]);
   const [form_id, setform_id] = useState<number | null>(null);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<{ name: string; email: string } | null>(
+    null
+  );
 
   type question = {
     question_text: string;
@@ -64,7 +69,12 @@ export const Home = (): JSX.Element => {
     newQuestions[qIndex].choices.splice(cIndex, 1);
     setQuestions(newQuestions);
   };
+
   const emailSend = async () => {
+    if (!isAuthenticated) {
+      alert("ログインしてください");
+      return;
+    }
     if (form_title === "") {
       alert("フォームタイトルを入力してください");
       return;
@@ -180,71 +190,134 @@ export const Home = (): JSX.Element => {
     setform_id(null);
   };
 
+  const handleAuthClick = () => {
+    const clientId =
+      "606359673208-a1tb3fao58u4sbla1gn0cg28809la9an.apps.googleusercontent.com"; 
+    console.log(clientId);
+    const redirectUri = new URL(window.location.href).origin; 
+    const scope =
+      "openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email";
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
+
+    window.location.href = authUrl;
+  };
+
+  const handleSignoutClick = () => {
+    setIsAuthenticated(false);
+    setUser(null);
+    window.location.href = new URL(window.location.href).origin;;
+    window.localStorage.removeItem("access_token");
+  };
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      const token = new URLSearchParams(hash.substring(1)).get("access_token");
+      if (token) {
+        fetch("https://www.googleapis.com/oauth2/v1/userinfo?alt=json", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            setIsAuthenticated(true);
+            setUser({ name: data.name, email: data.email });
+            console.log("Success:", data);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+    }
+  }, []);
+
   return (
     <div className="container">
+      {!isAuthenticated ? (
+        <button onClick={handleAuthClick} className="auth-button">
+          Googleでログイン
+        </button>
+      ) : (
+        <div>
+          <p>ログイン中: {user?.name}</p>
+          <button onClick={handleSignoutClick} className="auth-button">
+            ログアウト
+            </button>
+            
+        </div>
+      )}
       <h1 className="title">アンケートフォーム作成</h1>
-      <div className="form-group">
-        <label className="form-label">フォームタイトル:</label>
-        <input
-          className="form-input"
-          type="text"
-          value={form_title}
-          onChange={handleform_titleChange}
-        />
-      </div>
-      {questions.map((question, qIndex) => (
-        <div key={qIndex} className="question-group">
-          <div className="question-box">
-            <label className="form-label">質問文:</label>
+
+      {isAuthenticated && (
+        <div>
+          <div className="form-group">
+            <label className="form-label">フォームタイトル:</label>
             <input
               className="form-input"
               type="text"
-              value={question.question_text}
-              onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
+              value={form_title}
+              onChange={handleform_titleChange}
             />
-            {question.choices.map((choice, cIndex) => (
-              <div key={cIndex} className="choice-group">
-                <label className="form-label choice-label">
-                  選択肢{cIndex + 1}:
-                </label>
-                <div className="choice-box">
-                  <input
-                    className="form-input choice-input"
-                    type="text"
-                    value={choice}
-                    onChange={(e) =>
-                      handleChoiceChange(qIndex, cIndex, e.target.value)
-                    }
-                  />
-                  <button
-                    className="cross-button"
-                    onClick={() => removeChoice(qIndex, cIndex)}
-                  >
-                    ✕
-                  </button>
-                </div>
-              </div>
-            ))}
-            <button className="add-button" onClick={() => addChoice(qIndex)}>
-              選択肢を追加
-            </button>
-            <button
-              className="remove-button"
-              onClick={() => removeQuestion(qIndex)}
-            >
-              質問を削除
-            </button>
           </div>
+          {questions.map((question, qIndex) => (
+            <div key={qIndex} className="question-group">
+              <div className="question-box">
+                <label className="form-label">質問文:</label>
+                <input
+                  className="form-input"
+                  type="text"
+                  value={question.question_text}
+                  onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
+                />
+                {question.choices.map((choice, cIndex) => (
+                  <div key={cIndex} className="choice-group">
+                    <label className="form-label choice-label">
+                      選択肢{cIndex + 1}:
+                    </label>
+                    <div className="choice-box">
+                      <input
+                        className="form-input choice-input"
+                        type="text"
+                        value={choice}
+                        onChange={(e) =>
+                          handleChoiceChange(qIndex, cIndex, e.target.value)
+                        }
+                      />
+                      <button
+                        className="cross-button"
+                        onClick={() => removeChoice(qIndex, cIndex)}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  className="add-button"
+                  onClick={() => addChoice(qIndex)}
+                >
+                  選択肢を追加
+                </button>
+                <button
+                  className="remove-button"
+                  onClick={() => removeQuestion(qIndex)}
+                >
+                  質問を削除
+                </button>
+              </div>
+            </div>
+          ))}
+          <button className="add-button" onClick={addQuestion}>
+            質問を追加
+          </button>
+          <button className="submit-button" onClick={handleSubmit}>
+            フォームを送信
+          </button>
+          {isPopupVisible && (
+            <Popup form_id={form_id} onClose={handleClosePopup} />
+          )}
         </div>
-      ))}
-      <button className="add-button" onClick={addQuestion}>
-        質問を追加
-      </button>
-      <button className="submit-button" onClick={handleSubmit}>
-        フォームを送信
-      </button>
-      {isPopupVisible && (
-        <Popup form_id={form_id} onClose={handleClosePopup} />
       )}
     </div>
   );

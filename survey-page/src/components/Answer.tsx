@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./Answer.css";
-import { url } from "inspector";
+
 
 const Answer: React.FC = () => {
   const { form_id } = useParams<{ form_id: string }>();

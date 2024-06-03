@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QuestionsController } from './questions.controller';
 import { QuestionsService } from './questions.service';
+import { QueryRunner } from 'typeorm';
 
 const mockQuestionsService = () => ({
   findAll: jest.fn(),
@@ -32,7 +33,7 @@ describe('QuestionsController', () => {
         },
       ];
       jest.spyOn(controller, 'findAll').mockResolvedValue(result);
-
+      
       expect(await controller.findAll()).toEqual(result);
     });
   });
