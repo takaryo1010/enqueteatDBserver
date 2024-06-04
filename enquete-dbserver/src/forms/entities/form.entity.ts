@@ -1,5 +1,6 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Question } from "../../questions/entities/question.entity";
+import { User } from "../../users/entities/user.entity";
 @Entity()
 export class Form {
     @PrimaryGeneratedColumn()
@@ -10,4 +11,8 @@ export class Form {
     
     @OneToMany(() => Question, question => question.form)
     questions: Question[];
+    
+    @ManyToOne(() => User, user => user.forms)
+    user: User;
+    
 } 
