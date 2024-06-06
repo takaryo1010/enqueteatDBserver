@@ -14,6 +14,13 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
+    const existingUser = await this.usersRepository.findOneBy({
+      user_email: createUserDto.user_email,
+    });
+
+    if (existingUser) {
+      return existingUser;
+    }
     return await this.usersRepository.save(createUserDto);
   }
 
@@ -28,4 +35,5 @@ export class UsersService {
     user.forms.push(form);
     return await this.usersRepository.save(user);
   }
+
 }

@@ -19,6 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { IsEmail } from 'class-validator';
 @Controller('users')
+@ApiTags('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -79,8 +80,9 @@ export class UsersController {
   @ApiBody({
     schema: {
       example: {
-        form_id: '1',
+        form_id: 1,
       },
+
     },
   })
   @ApiResponse({
@@ -97,4 +99,6 @@ export class UsersController {
   addForm(@Param('email') email: string, @Body('form_id') formId: number) {
     return this.usersService.addForm(email, formId);
   }
+
+
 }

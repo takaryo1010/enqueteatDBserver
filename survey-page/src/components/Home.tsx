@@ -235,9 +235,10 @@ export const Home = (): JSX.Element => {
   return (
     <div className="container">
       {!isAuthenticated ? (
+        <div><h2>ログインしてください</h2>
         <button onClick={handleAuthClick} className="auth-button">
           Googleでログイン
-        </button>
+        </button></div>
       ) : (
         <div>
           <p>ログイン中: {user?.name}</p>
