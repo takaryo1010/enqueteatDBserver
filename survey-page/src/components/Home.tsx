@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Home.css";
 import { Popup } from "./Popup";
-import { env } from "process";
+
 
 export const Home = (): JSX.Element => {
   const url = "http://localhost:3000/";

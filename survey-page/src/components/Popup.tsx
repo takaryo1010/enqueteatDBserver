@@ -17,7 +17,15 @@ export const Popup = ({
       onClose();
     }
   };
-
+   function copyToClipboard() {
+     const textField = document.createElement("textarea");
+     textField.innerText = answerURL;
+     document.body.appendChild(textField);
+     textField.select();
+     document.execCommand("copy");
+     textField.remove();
+     alert("URLがクリップボードにコピーされました！");
+   }
   return (
     <div className="popup-overlay">
       <div className="popup-content">
@@ -25,6 +33,8 @@ export const Popup = ({
         <p>
           <a href={answerURL}>{answerURL}</a>
         </p>
+        <input value={answerURL}></input>
+        <button className="copyTarget" onClick={copyToClipboard}>Copy text</button>
         <button className="close-button" onClick={handleClose}>
           閉じる
         </button>
