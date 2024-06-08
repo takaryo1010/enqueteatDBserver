@@ -44,6 +44,9 @@ h2 {
 .popup-content button:hover {
   background-color: #b30c00;
 }
+.copyTarget {
+  background-color: #c0b4b3;
+}
 
 a {
   text-decoration: none;

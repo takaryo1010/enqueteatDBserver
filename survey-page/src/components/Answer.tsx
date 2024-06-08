@@ -83,7 +83,7 @@ const Answer: React.FC = () => {
            },
          });
        }
-
+      alert("投票が完了しました。ありがとうございます。");
        // Fetch data again
        await fetchData();
      } else {
