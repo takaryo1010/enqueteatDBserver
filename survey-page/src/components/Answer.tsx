@@ -107,6 +107,7 @@ const Answer: React.FC = () => {
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
 
     window.location.href = authUrl;
+    
   };
 
   const handleSignoutClick = () => {
@@ -139,7 +140,7 @@ const Answer: React.FC = () => {
     if (form_id) {
       window.localStorage.setItem("form_id", form_id);
     }
-
+    console.log("isAuthenticated", isAuthenticated);
 
   }, []);
 

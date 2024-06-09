@@ -9,7 +9,7 @@ const Callback: React.FC = () => {
     const [user, setUser] = useState<{ name: string; email: string } | null>(
       null
     );
-    const [isAuthenticated, setIsAuthenticated] = useState(false);  
+
 
     
     useEffect(() => {
@@ -55,6 +55,7 @@ const Callback: React.FC = () => {
               
               
               console.log("Success:", data);
+              
             })
             .catch((error) => {
               console.error("Error:", error);
