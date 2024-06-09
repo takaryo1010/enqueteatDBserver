@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import "./Answer.css";
 
 const Answer: React.FC = () => {
   const { form_id } = useParams<{ form_id: string }>() ?? { form_id: "" };
+  const location = useLocation();
   const [questions, setQuestions] = useState<any[]>([]);
   const [selectedChoices, setSelectedChoices] = useState<number[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -28,6 +29,31 @@ const Answer: React.FC = () => {
     fetchData();
   }, [form_id]);
 
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const token = queryParams.get("access_token");
+    const name = queryParams.get("name");
+    const email = queryParams.get("email");
+
+    if (token) {
+      setAccess_token(token);
+      window.localStorage.setItem("access_token", token);
+    }
+
+    if (name && email) {
+      setUser({ name: name, email: email } as { name: string; email: string });
+      setIsAuthenticated(true);
+      window.localStorage.setItem("name", name);
+      window.localStorage.setItem("email", email);
+    }
+
+    if (form_id) {
+      window.localStorage.setItem("form_id", form_id);
+    }
+
+    console.log("isAuthenticated", isAuthenticated);
+  }, [location.search, form_id]);
+
   const handleChoiceToggle = (choiceId: number) => {
     setSelectedChoices((prevChoices) => {
       const index = prevChoices.indexOf(choiceId);
@@ -39,61 +65,47 @@ const Answer: React.FC = () => {
     });
   };
 
- const handleSubmit = async () => {
-   try {
-     // Get user data
-     const response = await fetch(`${url}users/${user?.email}`);
-     const data = await response.json();
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch(`${url}users/${user?.email}`);
+      const data = await response.json();
+      const nowForm_id = window.localStorage.getItem("form_id");
+      let check = true;
+      for (const formId in data.forms) {
+        if (data.forms[formId].form_id == nowForm_id) {
+          check = false;
+          break;
+        }
+      }
 
-     // Check if the form ID matches
-     const nowForm_id = window.localStorage.getItem("form_id");
-     let check = true;
-     for (const formId in data.forms) {
-       if (data.forms[formId].form_id == nowForm_id) {
-         check = false;
-         console.log(
-           "data.forms[form_id]:",
-           data.forms[formId].form_id,
-           nowForm_id
-         );
-         break;
-       }
-     }
+      if (check) {
+        await fetch(`${url}users/${user?.email}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            form_id: form_id,
+          }),
+        });
 
-     console.log("check:", check);
-
-     if (check) {
-       // Update user's form ID
-       await fetch(`${url}users/${user?.email}`, {
-         method: "PATCH",
-         headers: {
-           "Content-Type": "application/json",
-         },
-         body: JSON.stringify({
-           form_id: form_id,
-         }),
-       });
-
-       // Vote for selected choices
-       for (const choiceId of selectedChoices) {
-         await fetch(`${url}choices/${choiceId}/vote`, {
-           method: "PATCH",
-           headers: {
-             "Content-Type": "application/json",
-           },
-         });
-       }
-      alert("投票が完了しました。ありがとうございます。");
-       // Fetch data again
-       await fetchData();
-     } else {
-       alert(user?.name+"さんはすでにこのフォームに投票済みです。");
-     }
-   } catch (error) {
-     console.error("Error submitting data:", error);
-   }
- };
-
+        for (const choiceId of selectedChoices) {
+          await fetch(`${url}choices/${choiceId}/vote`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+        }
+        alert("投票が完了しました。ありがとうございます。");
+        await fetchData();
+      } else {
+        alert(user?.name + "さんはすでにこのフォームに投票済みです。");
+      }
+    } catch (error) {
+      console.error("Error submitting data:", error);
+    }
+  };
 
   const handleAuthClick = () => {
     if (form_id) {
@@ -107,7 +119,6 @@ const Answer: React.FC = () => {
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
 
     window.location.href = authUrl;
-    
   };
 
   const handleSignoutClick = () => {
@@ -122,28 +133,6 @@ const Answer: React.FC = () => {
     setIsAuthenticated(false);
   };
 
-  useEffect(() => {
-    const access_token = window.localStorage.getItem("access_token");
-   
-    if (access_token) {
-      setAccess_token(access_token);
-
-    }
-
-    const name = window.localStorage.getItem("name");
-    const email = window.localStorage.getItem("email");
-
-    if (name && email) {
-      setUser({ name: name, email: email } as { name: string; email: string });
-      setIsAuthenticated(true);
-    }
-    if (form_id) {
-      window.localStorage.setItem("form_id", form_id);
-    }
-    console.log("isAuthenticated", isAuthenticated);
-
-  }, []);
-
   return (
     <div className="answer-container">
       {!isAuthenticated ? (
@@ -151,9 +140,7 @@ const Answer: React.FC = () => {
           <button onClick={handleAuthClick} className="auth-button">
             Googleでログイン
           </button>
-          <h1>
-            ログインしてフォームに回答することができます。
-          </h1>
+          <h1>ログインしてフォームに回答することができます。</h1>
         </div>
       ) : (
         <div>

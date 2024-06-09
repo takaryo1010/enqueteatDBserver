@@ -21,6 +21,7 @@ export class QuestionsService {
   findOneByFormId(formId: number): Promise<Question[]> {
     return this.questionsRepository.find({ where: { form: {form_id:formId} } });
   }
+  
 
   create(@Body() createQuestionDto:CreateQuestionDto): Promise<Question> {
     return this.questionsRepository.save(createQuestionDto);

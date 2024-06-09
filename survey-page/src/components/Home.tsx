@@ -57,6 +57,12 @@ export const Home = (): JSX.Element => {
               });
               const choiceData = await choiceResponse.json();
               console.log("Success:", choiceData);
+              console.log("choiceData.statusCode", choiceData.statusCode);
+              if (choiceResponse.status === 201) {
+                setIsPopupVisible(true);
+              } else {
+                alert("エラーが発生しました\n\n"+"ステータスコード"+choiceResponse.status+"\n"+choiceResponse.statusText);
+              }
             } catch (error) {
               console.error("Error:", error);
               throw error;
@@ -108,7 +114,7 @@ export const Home = (): JSX.Element => {
       console.log("form_id", form_id);
       setForm_id(form_id);
       await sendQuestions(form_id);
-      setIsPopupVisible(true);
+      
     } catch (error) {
       console.error("Error:", error);
     }

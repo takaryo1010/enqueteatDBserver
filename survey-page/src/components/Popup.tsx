@@ -1,5 +1,5 @@
 // Popup.js
-import React from "react";
+import React, { useState } from "react";
 import "./Popup.css";
 
 export const Popup = ({
@@ -11,12 +11,15 @@ export const Popup = ({
 }) => {
   const uri = new URL(window.location.href);
   const answerURL = uri.origin + "/Answer/" + form_id;
-
+  const [isNull, setIsNull] = useState(false);
   const handleClose = () => {
     if (window.confirm("アンケートURLは保存しましたか？")) {
       onClose();
     }
   };
+  if (form_id === null) {
+    setIsNull(true);
+  }
    function copyToClipboard() {
      const textField = document.createElement("textarea");
      textField.innerText = answerURL;

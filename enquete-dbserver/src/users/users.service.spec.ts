@@ -53,6 +53,16 @@ describe('UsersService', () => {
       jest.spyOn(repository, 'findOneBy').mockResolvedValue(user);
       expect(await service.findOne('example@gmail.com')).toEqual(user);
     });
+    it("SQLインジェクションが発生する可能性がある", async () => {
+      const user = {
+        user_id: 1,
+        user_email: "1 OR 1=1",
+        forms: [],
+      };
+
+      jest.spyOn(repository, 'findOneBy').mockResolvedValue(user);
+      expect(await service.findOne('1 OR 1=1')).toEqual(user);
+    });
   });
 
   describe('update', () => {
