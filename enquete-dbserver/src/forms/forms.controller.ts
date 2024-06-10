@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body,Patch } from '@nestjs/common';
 import { FormsService } from './forms.service';
 import { Form } from './entities/form.entity';
 import {
@@ -8,6 +8,7 @@ import {
   ApiBody,
   ApiParam,
 } from '@nestjs/swagger';
+import { UpdateFormDto } from './dto/update-form.dto';
 
 @Controller('forms')
 @ApiTags('forms')
@@ -99,4 +100,35 @@ export class FormsController {
   remove(@Param('id') id: number): Promise<void> {
     return this.formsService.remove(id);
   }
+
+
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'IDによるフォームタイトルの更新',
+    description: 'IDによって特定のフォームを更新します。',
+  })
+  @ApiParam({ name: 'id', description: '更新するフォームのID' })
+  @ApiBody({
+    schema: {
+      example: {
+        form_title: 'フォームのタイトル2',
+      },
+    },
+    description: '更新するフォームの詳細',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'フォームが正常に更新されました。',
+    schema: {
+      example: {
+        form_title: 'サンプルフォームタイトル1',
+        form_id: 1,
+      },
+    },
+  })
+  @ApiResponse({ status: 404, description: 'フォームが見つかりません。' })
+  update(@Param('id') id: number, @Body() form: UpdateFormDto): Promise<Form> {
+    return this.formsService.update(id, form);
+  }
+
 }

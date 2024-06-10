@@ -18,10 +18,19 @@ export class FormsService {
   findOne(id: number): Promise<Form> {
     return this.formsRepository.findOneBy({ form_id: id });
   }
-
-  
-  create(@Body() createFormDto:CreateFormDto): Promise<Form> {
+  create(@Body() createFormDto: CreateFormDto): Promise<Form> {
     return this.formsRepository.save(createFormDto);
+  }
+  async update(id: number, updateFormDto: UpdateFormDto): Promise<Form> {
+
+    const existingForm: Form = await this.formsRepository.findOneBy({
+      form_id: id,
+    });
+    if (!existingForm) {
+      throw new Error('Form not found');
+    }
+    existingForm.form_title = updateFormDto.form_title;
+    return this.formsRepository.save(existingForm);
   }
 
   async remove(id: number): Promise<void> {

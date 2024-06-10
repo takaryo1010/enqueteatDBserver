@@ -122,7 +122,45 @@ describe('ChoicesService', () => {
           expect(e.message).toBe('Choice not found');
         }
       });
+  });
+  
+  describe('update', () => {
+    it('指定した選択肢が更新されるべき', async () => {
+      const choice = {
+        choice_id: 1,
+        choice_text: 'Choice 1',
+        vote_counter: 0,
+        question: null,
+      };
+      const updatedChoice = {
+        choice_id: 1,
+        choice_text: 'Updated Choice',
+        vote_counter: 0,
+        question: null,
+      };
+      jest.spyOn(repository, 'findOneBy').mockResolvedValue(choice);
+      jest.spyOn(repository, 'save').mockResolvedValue(updatedChoice);
+
+      expect(await service.update(1, updatedChoice)).toEqual({
+        ...choice,
+        ...updatedChoice,
+      });
     });
+    it('選択肢が見つからなかったらエラーが返ってくるべき', async () => {
+      jest.spyOn(repository, 'findOneBy').mockResolvedValue(null);
+      const updatedChoice = {
+        choice_id: 1,
+        choice_text: 'Updated Choice',
+        vote_counter: 0,
+        question: null,
+      };
+      try {
+        await service.update(1, updatedChoice);
+      } catch (e) {
+        expect(e.message).toBe('Choice not found');
+      }
+    });
+  });
   
     
 });

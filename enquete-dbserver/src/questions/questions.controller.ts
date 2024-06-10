@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body,Patch } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
 import { Question } from './entities/question.entity';
 import {
@@ -192,4 +192,35 @@ export class QuestionsController {
   remove(@Param('id') id: number): Promise<void> {
     return this.questionsService.remove(id);
   }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'IDによる質問の更新',
+    description: 'IDによって特定の質問テキストを更新します。',
+  })
+  @ApiParam({ name: 'id', description: '更新する質問のID' })
+  @ApiBody({
+    schema: {
+      example: {
+        question_text: 'question 3',
+      },
+    },
+    description: '更新する質問の詳細',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '質問が正常に更新されました。',
+    schema: {
+      example: {
+        question_id: 3,
+        question_text: 'クエスチョンテキスト3',
+      },
+    },
+  })
+  update(@Param('id') id: number, @Body() question: Question): Promise<Question> {
+    return this.questionsService.update(id, question);
+  }
+
+
+
 }

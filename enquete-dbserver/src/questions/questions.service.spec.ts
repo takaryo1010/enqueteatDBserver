@@ -3,6 +3,7 @@ import { QuestionsService } from './questions.service';
 import { Question } from './entities/question.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { describe } from 'node:test';
 
 const mockQuestionRepository = () => ({
   find: jest.fn(),
@@ -112,5 +113,33 @@ describe('QuestionsService', () => {
       expect(repository.delete).toHaveBeenCalledWith(1);
     });
   });
-  
+
+  describe('update', () => {
+    it('指定したクエスチョンが更新されるべき', async () => {
+      const question = {
+        question_id: 1,
+        question_text: 'Question 1',
+        form: null,
+        choices: [],
+      }as Question;
+      const updatedQuestion = {
+        question_id: 1,
+        question_text: 'Updated Question',
+        form: null,
+        choices: [],
+      };
+      jest.spyOn(repository, 'findOneBy').mockResolvedValue(question);
+      jest.spyOn(repository, 'save').mockResolvedValue(updatedQuestion);
+
+      expect(await service.update(1, updatedQuestion as Question)).toEqual(
+        {...question, ...updatedQuestion}
+      );
+    });
+    it('クエスチョンが見つからなかったらエラーが返ってくるべき', async () => {
+      jest.spyOn(repository, 'findOneBy').mockResolvedValue(null);
+
+      await expect(service.update(1, { question_text: 'Updated Question' } as Question)).rejects.toThrowError('Question not found');
+    }
+    );
+  });
 });

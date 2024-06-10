@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QuestionsController } from './questions.controller';
 import { QuestionsService } from './questions.service';
-import { QueryRunner } from 'typeorm';
+import { Question } from './entities/question.entity';
 
 const mockQuestionsService = () => ({
   findAll: jest.fn(),
@@ -16,9 +16,12 @@ describe('QuestionsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [QuestionsController],
-      providers: [QuestionsService,{ provide: QuestionsService, useFactory: mockQuestionsService }],
+      providers: [
+        QuestionsService,
+        { provide: QuestionsService, useFactory: mockQuestionsService },
+      ],
     }).compile();
-    
+
     controller = module.get<QuestionsController>(QuestionsController);
   });
 
@@ -33,7 +36,7 @@ describe('QuestionsController', () => {
         },
       ];
       jest.spyOn(controller, 'findAll').mockResolvedValue(result);
-      
+
       expect(await controller.findAll()).toEqual(result);
     });
   });
@@ -98,13 +101,42 @@ describe('QuestionsController', () => {
     });
   });
 
-
-
   describe('remove', () => {
     it('指定したクエスチョンが１つ削除されるべきです', async () => {
       jest.spyOn(controller, 'remove').mockResolvedValue(undefined);
 
       expect(await controller.remove(1)).toBeUndefined();
     });
+  });
+
+  describe('update', () => {
+    it('指定したクエスチョンのテキストが更新されるべき', async () => {
+      const id = 1;
+      const updateQuestion = {
+        question_id: 1,
+        question_text: 'Updated Question',
+        form: null,
+        choices: [],
+      } as Question;
+      jest.spyOn(controller, 'update').mockResolvedValue(updateQuestion);
+
+      expect(await controller.update(1, updateQuestion)).toEqual(
+        updateQuestion,
+      );
+    });
+    it('クエスチョンが見つからなかったらエラーが返ってくるべき', async () => {
+      jest.spyOn(controller, 'update').mockRejectedValue(new Error('Not found'));
+
+      await expect(
+        controller.update(1, {
+          question_id: 1,
+          question_text: 'Updated Question',
+          form: null,
+          choices: [],
+        } as Question),
+      ).rejects.toThrowError('Not found');
+    });
+      
+
   });
 });

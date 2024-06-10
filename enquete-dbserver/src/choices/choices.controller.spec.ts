@@ -107,4 +107,34 @@ describe('ChoicesController', () => {
       );
     });
   });
+  describe('update', () => {
+    it('指定した選択肢が更新されるべき', async () => {
+      const id = 1;
+      const updateChoice = {
+        choice_id: 1,
+        choice_text: 'Updated Choice',
+        vote_counter: 0,
+        question: null,
+      };
+      jest.spyOn(controller, 'update').mockResolvedValue(updateChoice);
+
+      expect(await controller.update(1, updateChoice)).toEqual(
+        updateChoice,
+      );
+    });
+    it('選択肢が見つからなかったらエラーが返ってくるべき', async () => {
+      jest
+        .spyOn(controller, 'update')
+        .mockRejectedValue(new Error('Choice not found'));
+
+      expect(controller.update(1, {
+        choice_text: 'Updated Choice',
+        choice_id: 0,
+        vote_counter: 0
+      })).rejects.toThrowError(
+        'Choice not found',
+      );
+    });
+  });
+
 });

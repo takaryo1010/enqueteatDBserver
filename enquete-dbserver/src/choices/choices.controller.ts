@@ -176,4 +176,35 @@ export class ChoicesController {
   remove(@Param('id') id: number) {
     return this.choicesService.remove(id);
   }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'IDによる選択肢の更新',
+    description: 'IDによって特定の選択肢を更新します。',
+  })
+  @ApiParam({ name: 'id', description: '更新する選択肢のID' })
+  @ApiBody({
+    schema: {
+      example: {
+        choice_text: 'choice 3',
+      },
+    },
+    description: '更新する選択肢の詳細',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '選択肢が正常に更新されました。',
+    schema: {
+      example: {
+        choice_text: 'choice 3',
+      },
+    },
+  })
+  update(
+    @Param('id') id: number,
+    @Body() updateChoiceDto: UpdateChoiceDto,
+  ): Promise<Choice> {
+    return this.choicesService.update(id, updateChoiceDto);
+  }
+
 }

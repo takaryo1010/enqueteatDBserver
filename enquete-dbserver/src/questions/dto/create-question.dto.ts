@@ -7,8 +7,5 @@ export class CreateQuestionDto {
     @IsNotEmpty()
     question_text: string;
     
-    @ApiProperty()
-    @IsNumber()
-    @IsNotEmpty()
-    question_id: number;
+
 }

@@ -32,7 +32,7 @@ describe('FormsService', () => {
       const formArray = [
         { form_id: 1, form_title: 'Form 1', questions: [] },
         { form_id: 2, form_title: 'Form 2 日本語', questions: [] },
-      ];
+      ] as Form[]; // Cast formArray to Form[]
       jest.spyOn(repository, 'find').mockResolvedValue(formArray);
 
       expect(await service.findAll()).toEqual(formArray);
@@ -41,7 +41,7 @@ describe('FormsService', () => {
 
   describe('findOne', () => {
     it('指定されたフォーム１つが返ってくるべき', async () => {
-      const form = { form_id: 1, form_title: 'Form 1', questions: [] };
+      const form = { form_id: 1, form_title: 'Form 1', questions: [] } as Form; // Cast form to Form
       jest.spyOn(repository, 'findOneBy').mockResolvedValue(form);
 
       expect(await service.findOne(1)).toEqual(form);
@@ -56,7 +56,7 @@ describe('FormsService', () => {
 
   describe('create', () => {
     it('フォームが作成され、そのフォームが返ってくるべき', async () => {
-      const form = { form_id: 1, form_title: 'New Form', questions: [] };
+      const form = { form_id: 1, form_title: 'New Form', questions: [] } as Form;
       jest.spyOn(repository, 'save').mockResolvedValue(form);
 
       expect(await service.create(form as Form)).toEqual(form);
@@ -70,4 +70,22 @@ describe('FormsService', () => {
       expect(await service.remove(1)).toBeUndefined();
     });
   });
+  describe('update', () => {
+    it('指定したフォームのタイトルが更新されるべき', async () => {
+      const form = { form_id: 1, form_title: 'Form 1', questions: [] } as Form;
+      const updateForm = { form_title: 'Updated Form' } as Form;
+      jest.spyOn(repository, 'findOneBy').mockResolvedValue(form);
+      jest.spyOn(repository, 'save').mockResolvedValue({ ...form, ...updateForm });
+
+      expect(await service.update(1, updateForm)).toEqual({ ...form, ...updateForm });
+    });
+
+    it('フォームが見つからなかったらエラーが返ってくるべき', async () => {
+      jest.spyOn(repository, 'findOneBy').mockResolvedValue(null);
+
+      await expect(service.update(1, { form_title: 'Updated Form' } as Form)).rejects.toThrowError('Form not found');
+    });
+  });
+    
+    
 });

@@ -38,4 +38,15 @@ export class ChoicesService {
   async remove(id: number): Promise<void> {
     await this.choicesRepository.delete(id);
   }
+  async update(id: number, updateChoiceDto: UpdateChoiceDto): Promise<Choice> {
+    const choice = await this.choicesRepository.findOneBy({ choice_id: id });
+    if (!choice) {
+      throw new Error('Choice not found');
+    }
+
+    const updatedChoice = await this.choicesRepository.save({ ...choice, ...updateChoiceDto });
+
+    return updatedChoice;
+  }
+  
 }

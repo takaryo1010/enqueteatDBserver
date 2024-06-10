@@ -30,9 +30,7 @@ export class UsersService {
 
   async addForm(email: string, form_id: number): Promise<User> {
     const user = await this.usersRepository.findOneBy({ user_email: email });
-    const form = new Form();
-    form.form_id = form_id;
-    user.forms.push(form);
+    user.forms.push({form_id: form_id}as Form);
     return await this.usersRepository.save(user);
   }
 
