@@ -32,6 +32,7 @@ describe('ChoicesController', () => {
           choice_id: 1,
           choice_text: 'Choice 1',
           vote_counter: 0,
+          textAnswers: null,
           question: null,
         },
       ];
@@ -47,6 +48,7 @@ describe('ChoicesController', () => {
         choice_id: 1,
         choice_text: 'Choice 1',
         vote_counter: 0,
+        textAnswers: null,
         question: null,
       };
       jest.spyOn(controller, 'findOne').mockResolvedValue(result);
@@ -67,6 +69,7 @@ describe('ChoicesController', () => {
         choice_id: 1,
         choice_text: 'Choice 1',
         vote_counter: 0,
+        textAnswers: null,
         question: null,
       };
       jest.spyOn(controller, 'create').mockResolvedValue(result);
@@ -90,6 +93,7 @@ describe('ChoicesController', () => {
         choice_id: 1,
         choice_text: 'Choice 1',
         vote_counter: 1,
+        textAnswers: null,
         question: null,
       };
       jest.spyOn(controller, 'vote').mockResolvedValue(choice);
@@ -114,6 +118,7 @@ describe('ChoicesController', () => {
         choice_id: 1,
         choice_text: 'Updated Choice',
         vote_counter: 0,
+        textAnswers: null,
         question: null,
       };
       jest.spyOn(controller, 'update').mockResolvedValue(updateChoice);

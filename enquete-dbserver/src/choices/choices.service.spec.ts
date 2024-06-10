@@ -34,6 +34,7 @@ describe('ChoicesService', () => {
           choice_id: 1,
           choice_text: 'Choice 1',
           vote_counter: 0,
+          textAnswers: null,
           question: null,
         },
       ];
@@ -48,6 +49,7 @@ describe('ChoicesService', () => {
       const choice = {
         choice_id: 1,
         choice_text: 'Choice 1',
+        textAnswers: null,
         vote_counter: 0,
         question: null,
       };
@@ -69,6 +71,7 @@ describe('ChoicesService', () => {
         choice_id: 1,
         choice_text: 'Choice 1',
         vote_counter: 0,
+        textAnswers: null,
         question: null,
       };
       jest.spyOn(repository, 'save').mockResolvedValue(choice);
@@ -83,6 +86,7 @@ describe('ChoicesService', () => {
         choice_id: 1,
         choice_text: 'Choice 1',
         vote_counter: 0,
+        textAnswers: null,
         question: null,
       };
       jest.spyOn(repository, 'findOneBy').mockResolvedValue(choice);
@@ -99,6 +103,7 @@ describe('ChoicesService', () => {
         choice_id: 1,
         choice_text: 'Choice 1',
         vote_counter: 0,
+        textAnswers: null,
         question: null,
       };
       jest.spyOn(repository, 'findOneBy').mockResolvedValue(choice);
@@ -131,11 +136,13 @@ describe('ChoicesService', () => {
         choice_text: 'Choice 1',
         vote_counter: 0,
         question: null,
+        textAnswers:null,
       };
       const updatedChoice = {
         choice_id: 1,
         choice_text: 'Updated Choice',
         vote_counter: 0,
+        textAnswers: null,
         question: null,
       };
       jest.spyOn(repository, 'findOneBy').mockResolvedValue(choice);

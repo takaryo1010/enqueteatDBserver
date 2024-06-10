@@ -1,4 +1,4 @@
-import { Body, Injectable } from '@nestjs/common';
+import { Body, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateChoiceDto } from './dto/create-choice.dto';
 import { UpdateChoiceDto } from './dto/update-choice.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -15,22 +15,31 @@ export class ChoicesService {
     return this.choicesRepository.find({ relations: ['question'] });
   }
 
-  findOne(id: number): Promise<Choice> {
-    return this.choicesRepository.findOneBy({ choice_id: id });
+  async findOne(id: number): Promise<Choice> {
+    const choice = await this.choicesRepository.findOne({
+      where: { choice_id: id },
+      relations: [ 'textAnswers'],
+    });
+    if (!choice) {
+      throw new NotFoundException('Choice not found');
+    }
+    return choice;
   }
 
-  create(@Body() createChoiceDto:CreateChoiceDto): Promise<Choice> {
+  create(@Body() createChoiceDto: CreateChoiceDto): Promise<Choice> {
     return this.choicesRepository.save(createChoiceDto);
   }
 
   async vote(id: number): Promise<Choice> {
-    const updateChoiceDto:UpdateChoiceDto = await this.choicesRepository.findOneBy({ choice_id: id });
+    const updateChoiceDto: UpdateChoiceDto =
+      await this.choicesRepository.findOneBy({ choice_id: id });
     if (!updateChoiceDto) {
       throw new Error('Choice not found');
     }
 
     updateChoiceDto.vote_counter++;
-    const updatedChoice: Choice = await this.choicesRepository.save(updateChoiceDto);
+    const updatedChoice: Choice =
+      await this.choicesRepository.save(updateChoiceDto);
 
     return updatedChoice;
   }
@@ -44,9 +53,11 @@ export class ChoicesService {
       throw new Error('Choice not found');
     }
 
-    const updatedChoice = await this.choicesRepository.save({ ...choice, ...updateChoiceDto });
+    const updatedChoice = await this.choicesRepository.save({
+      ...choice,
+      ...updateChoiceDto,
+    });
 
     return updatedChoice;
   }
-  
 }

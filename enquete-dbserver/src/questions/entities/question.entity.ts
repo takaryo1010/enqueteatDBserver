@@ -8,6 +8,9 @@ export class Question {
     @PrimaryGeneratedColumn()
     question_id: number;
 
+    @Column()
+    question_type: number;
+    
     @Column({type: 'varchar', length: 255, nullable: false})
     question_text: string;
 

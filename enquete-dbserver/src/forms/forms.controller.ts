@@ -28,10 +28,12 @@ export class FormsController {
       example: [
         {
           form_id: 1,
+          form_administrator: 'admin',
           form_title: 'サンプルフォームタイトル1',
         },
         {
           form_id: 2,
+          form_administrator: 'admin',
           form_title: 'サンプルフォームタイトル2',
         },
       ],
@@ -40,6 +42,38 @@ export class FormsController {
   findAll(): Promise<Form[]> {
     return this.formsService.findAll();
   }
+
+  @Get(':administrator')
+  @ApiOperation({
+    summary: '管理者によるフォームの取得',
+    description: '管理者によって作成されたフォームのリストを取得します。',
+  })
+  @ApiParam({ name: 'administrator', description: '取得するフォームの管理者' })
+  @ApiResponse({
+    status: 200,
+    description: 'フォームのリストが正常に取得されました。',
+    isArray: true,
+    schema: {
+      example: [
+        {
+          form_id: 1,
+          form_administrator: 'admin',
+          form_title: 'サンプルフォームタイトル1',
+        },
+        {
+          form_id: 2,
+          form_administrator: 'admin',
+          form_title: 'サンプルフォームタイトル2',
+        },
+      ],
+    },
+  })
+    
+  findByAdminister(@Param('administrator') administrator: string): Promise<Form[]> {
+    return this.formsService.findByAdminister(administrator);
+  }
+
+
 
   @Get(':id')
   @ApiOperation({
@@ -53,6 +87,7 @@ export class FormsController {
     schema: {
       example: {
         form_id: 1,
+        form_administrator: 'admin',
         form_title: 'サンプルフォームタイトル1',
       },
     },
@@ -70,6 +105,7 @@ export class FormsController {
   @ApiBody({
     schema: {
       example: {
+        form_administrator: 'admin',
         form_title: 'フォームのタイトル2',
       },
     },
@@ -81,6 +117,7 @@ export class FormsController {
     schema: {
       example: {
         form_title: 'サンプルフォームタイトル1',
+        form_administrator: 'admin',
         form_id: 1,
       },
     },
@@ -100,7 +137,6 @@ export class FormsController {
   remove(@Param('id') id: number): Promise<void> {
     return this.formsService.remove(id);
   }
-
 
   @Patch(':id')
   @ApiOperation({
@@ -122,6 +158,7 @@ export class FormsController {
     schema: {
       example: {
         form_title: 'サンプルフォームタイトル1',
+        form_administrator: 'admin',
         form_id: 1,
       },
     },
@@ -130,5 +167,4 @@ export class FormsController {
   update(@Param('id') id: number, @Body() form: UpdateFormDto): Promise<Form> {
     return this.formsService.update(id, form);
   }
-
 }

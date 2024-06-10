@@ -18,6 +18,9 @@ export class FormsService {
   findOne(id: number): Promise<Form> {
     return this.formsRepository.findOneBy({ form_id: id });
   }
+  findByAdminister(administrator: string): Promise<Form[]> {
+    return this.formsRepository.find({ where: { form_administrator: administrator } });
+  }
   create(@Body() createFormDto: CreateFormDto): Promise<Form> {
     return this.formsRepository.save(createFormDto);
   }

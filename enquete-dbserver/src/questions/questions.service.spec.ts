@@ -36,6 +36,7 @@ describe('QuestionsService', () => {
       const questionsArray = [
         {
           question_id: 1,
+          question_type: 1,
           question_text: 'Question 1',
           form: null,
           choices: [],
@@ -51,6 +52,7 @@ describe('QuestionsService', () => {
     it('指定されたクエスチョン１つが返ってくるべき', async () => {
       const question = {
         question_id: 1,
+        question_type: 1,
         question_text: 'Question 1',
         form: null,
         choices: [],
@@ -71,12 +73,14 @@ describe('QuestionsService', () => {
       const questionsArray = [
         {
           question_id: 1,
+          question_type: 1,
           question_text: 'Question 1',
           form: null,
           choices: [],
         },
         {
           question_id: 2,
+          question_type: 1,
           question_text: 'Question 2',
           form: null,
           choices: [],
@@ -97,6 +101,7 @@ describe('QuestionsService', () => {
     it('クエスチョンが作成され、そのクエスチョンが返ってくるべき', async () => {
       const newQuestion = {
         question_id: 1,
+        question_type: 1,
         question_text: 'New Question',
         form: null,
         choices: [],
@@ -124,6 +129,7 @@ describe('QuestionsService', () => {
       }as Question;
       const updatedQuestion = {
         question_id: 1,
+        question_type: 1,
         question_text: 'Updated Question',
         form: null,
         choices: [],

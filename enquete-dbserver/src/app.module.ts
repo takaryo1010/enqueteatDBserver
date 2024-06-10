@@ -9,6 +9,7 @@ import { FormsModule } from './forms/forms.module';
 import { QuestionsModule } from './questions/questions.module';
 import { ChoicesModule } from './choices/choices.module';
 import { UsersModule } from './users/users.module';
+import { TextAnswerModule } from './text-answer/text-answer.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { UsersModule } from './users/users.module';
     QuestionsModule,
     ChoicesModule,
     UsersModule,
+    TextAnswerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

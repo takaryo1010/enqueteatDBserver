@@ -11,11 +11,12 @@ export const Home = (): JSX.Element => {
   const [form_id, setForm_id] = useState<number>(0);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+ 
   const [user, setUser] = useState<{ name: string; email: string } | null>(
     null
   );
   const [questions, setQuestions] = useState([
-    { question_text: "", choices: [""] },
+    { question_text: "",question_type:1, choices: [""] },
   ]);
 
   const handleForm_titleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,6 +28,7 @@ export const Home = (): JSX.Element => {
       const questionPromises = questions.map(async (questionItem) => {
         const question = {
           question_text: questionItem.question_text,
+          question_type: questionItem.question_type,
           form: { form_id },
         };
         // console.log(question);
@@ -109,8 +111,16 @@ export const Home = (): JSX.Element => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ form_title }),
+        body: JSON.stringify({
+          form_title: form_title,
+          form_administrator: user?.email,
+        }),
       });
+      console.log("form_title", JSON.stringify({
+        form_title: form_title,
+        form_administrator: user?.email,
+      }));
+
       const data = await response.json();
       console.log("Success:", data);
       return data.form_id;
@@ -128,7 +138,7 @@ export const Home = (): JSX.Element => {
     setIsPopupVisible(false);
     setForm_id(0);
   };
-  const checkSendData = ():boolean => {
+  const checkSendData = (): boolean => {
     if (!isAuthenticated) {
       alert("ログインしてください");
       return false;
@@ -142,6 +152,15 @@ export const Home = (): JSX.Element => {
       return false;
     }
 
+    if (questions.length === 0) {
+      alert("質問を入力してください");
+      return false;
+    }
+    if (questions.length > 10) {
+      alert("質問は10個までです");
+      return false;
+    }
+
     for (let i = 0; i < questions.length; i++) {
       if (questions[i].question_text === "") {
         alert("質問文を入力してください");
@@ -151,31 +170,37 @@ export const Home = (): JSX.Element => {
         alert("質問文は100文字以内で入力してください");
         return false;
       }
-      for (let j = 0; j < questions[i].choices.length; j++) {
-        if (questions[i].choices[j] === "") {
-          alert("選択肢を入力してください");
+
+      if (
+        questions[i].question_type === 1 ||
+        questions[i].question_type === 2
+      ) {
+        if (questions[i].choices.length < 2) {
+          alert(
+            "ラジオボタンやチェックボックスの質問には少なくとも2つの選択肢が必要です"
+          );
           return false;
         }
-        if (questions[i].choices[j].length > 100) {
-          alert("選択肢は100文字以内で入力してください");
+        if (questions[i].choices.length > 10) {
+          alert("選択肢は10個までです");
           return false;
+        }
+        for (let j = 0; j < questions[i].choices.length; j++) {
+          if (questions[i].choices[j] === "") {
+            alert("選択肢を入力してください");
+            return false;
+          }
+          if (questions[i].choices[j].length > 100) {
+            alert("選択肢は100文字以内で入力してください");
+            return false;
+          }
         }
       }
     }
-    if (questions.length > 10) {
-      alert("質問は10個までです");
-      return false;
-    }
-    if (questions.some((question) => question.choices.length > 10)) {
-      alert("選択肢は10個までです");
-      return false;
-    }
-    if (questions.length === 0) {
-      alert("質問を入力してください");
-      return false;
-    }
+
     return true;
   };
+
   return (
     <div className="container">
       <Auth

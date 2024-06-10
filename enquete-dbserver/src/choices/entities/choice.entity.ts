@@ -1,6 +1,7 @@
-import { Entity } from "typeorm";
+import { Entity, OneToMany } from "typeorm";
 import { Column, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
 import { Question } from "../../questions/entities/question.entity";
+import { TextAnswer } from "../../text-answer/entities/text-answer.entity";
 @Entity()
 export class Choice {
     @PrimaryGeneratedColumn()
@@ -11,7 +12,11 @@ export class Choice {
 
     @Column({type: 'int', nullable: false, default: 0})
     vote_counter: number;
-    
+
     @ManyToOne(() => Question, question => question.choices)
     question: Question;
+
+    @OneToMany(() => TextAnswer, textAnswer => textAnswer.choice)
+    textAnswers: TextAnswer[];
+
 }

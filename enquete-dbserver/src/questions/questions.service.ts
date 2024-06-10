@@ -12,7 +12,9 @@ export class QuestionsService {
   ) {}
 
   findAll(): Promise<Question[]> {
-    return this.questionsRepository.find({ relations: ['choices'] });
+    return this.questionsRepository.find({
+      relations: ['choices', 'text-answer'],
+    });
   }
 
   findOne(id: number): Promise<Question> {
@@ -31,14 +33,17 @@ export class QuestionsService {
   async remove(id: number): Promise<void> {
     await this.questionsRepository.delete(id);
   }
-  async update(id: number,updateQuestionDto: CreateQuestionDto,): Promise<Question> {
-    const question = await this.questionsRepository.findOneBy({
+  async update(
+    id: number,
+    updateQuestionDto: CreateQuestionDto,
+  ): Promise<Question> {
+    let question = await this.questionsRepository.findOneBy({
       question_id: id,
     });
     if (!question) {
       throw new Error('Question not found');
     }
-    question.question_text = updateQuestionDto.question_text;
+    question = { ...question, ...updateQuestionDto };
     return this.questionsRepository.save(question);
   }
 }

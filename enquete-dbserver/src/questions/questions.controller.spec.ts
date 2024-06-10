@@ -30,6 +30,7 @@ describe('QuestionsController', () => {
       const result = [
         {
           question_id: 1,
+          question_type: 1,
           question_text: 'Question 1',
           form: null,
           choices: [],
@@ -45,6 +46,7 @@ describe('QuestionsController', () => {
     it('指定されたクエスチョン１つが返ってくるべき', async () => {
       const result = {
         question_id: 1,
+        question_type: 1,
         question_text: 'Question 1',
         form: null,
         choices: [],
@@ -66,12 +68,14 @@ describe('QuestionsController', () => {
       const result = [
         {
           question_id: 1,
+          question_type: 1,
           question_text: 'Question 1',
           form: null,
           choices: [],
         },
         {
           question_id: 2,
+          question_type: 1,
           question_text: 'Question 2',
           form: null,
           choices: [],
@@ -91,6 +95,7 @@ describe('QuestionsController', () => {
     it('クエスチョンが作成され、そのクエスチョンが返ってくるべき', async () => {
       const result = {
         question_id: 1,
+        question_type: 1,
         question_text: 'Question 1',
         form: null,
         choices: [],
@@ -114,6 +119,7 @@ describe('QuestionsController', () => {
       const id = 1;
       const updateQuestion = {
         question_id: 1,
+        question_type: 1,
         question_text: 'Updated Question',
         form: null,
         choices: [],
@@ -130,6 +136,7 @@ describe('QuestionsController', () => {
       await expect(
         controller.update(1, {
           question_id: 1,
+          question_type: 1,
           question_text: 'Updated Question',
           form: null,
           choices: [],

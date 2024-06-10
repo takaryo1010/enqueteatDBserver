@@ -53,7 +53,17 @@ describe('FormsService', () => {
       expect(await service.findOne(1)).toBeNull();
     });
   });
+  describe('findByAdminister', () => {
+    it('指定された管理者のフォームが返ってくるべき', async () => {
+      const formArray = [
+        { form_id: 1, form_title: 'Form 1', questions: [] },
+        { form_id: 2, form_title: 'Form 2 日本語', questions: [] },
+      ] as Form[]; // Cast formArray to Form[]
+      jest.spyOn(repository, 'find').mockResolvedValue(formArray);
 
+      expect(await service.findByAdminister('admin')).toEqual(formArray);
+    });
+  });
   describe('create', () => {
     it('フォームが作成され、そのフォームが返ってくるべき', async () => {
       const form = { form_id: 1, form_title: 'New Form', questions: [] } as Form;

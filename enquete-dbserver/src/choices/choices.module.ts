@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Choice } from './entities/choice.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Choice])],
+  imports: [TypeOrmModule.forFeature([Choice]),],
   controllers: [ChoicesController],
   providers: [ChoicesService],
 })

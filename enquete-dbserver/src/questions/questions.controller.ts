@@ -28,6 +28,7 @@ export class QuestionsController {
         [
           {
             question_id: 1,
+            question_type: 1,
             question_text: 'クエスチョンテキスト1',
             choices: [
               {
@@ -49,6 +50,7 @@ export class QuestionsController {
           {
             question_id: 2,
             question_text: 'クエスチョンテキスト2',
+            question_type: 1,
             choices: [],
             form: {
               form_id: 1,
@@ -75,6 +77,7 @@ export class QuestionsController {
     schema: {
       example: {
         question_id: 1,
+        question_type: 1,
         question_text: 'クエスチョンテキスト1',
         choices: [
           {
@@ -112,6 +115,7 @@ export class QuestionsController {
       example: [
         {
           question_id: 1,
+          question_type: 1,
           question_text: 'クエスチョンテキスト1',
           choices: [
             {
@@ -132,6 +136,7 @@ export class QuestionsController {
         },
         {
           question_id: 2,
+          question_type: 1,
           question_text: 'クエスチョンテキスト2',
           choices: [],
           form: {
@@ -154,6 +159,7 @@ export class QuestionsController {
     schema: {
       example: {
         question_text: 'question 3',
+        question_type: 1,
         form: {
           form_id: 1,
         },
@@ -167,6 +173,7 @@ export class QuestionsController {
     schema: {
       example: {
         question_text: 'クエスチョンテキスト3',
+        question_type: 1,
         form: {
           form_id: 1,
         },
@@ -188,7 +195,7 @@ export class QuestionsController {
     status: 200,
     description: '質問が正常に削除されました。',
   })
-    @ApiResponse({ status: 404, description: '質問が見つかりません。' })
+  @ApiResponse({ status: 404, description: '質問が見つかりません。' })
   remove(@Param('id') id: number): Promise<void> {
     return this.questionsService.remove(id);
   }
@@ -202,6 +209,7 @@ export class QuestionsController {
   @ApiBody({
     schema: {
       example: {
+        question_type: 3,
         question_text: 'question 3',
       },
     },
@@ -217,10 +225,10 @@ export class QuestionsController {
       },
     },
   })
-  update(@Param('id') id: number, @Body() question: Question): Promise<Question> {
+  update(
+    @Param('id') id: number,
+    @Body() question: Question,
+  ): Promise<Question> {
     return this.questionsService.update(id, question);
   }
-
-
-
 }

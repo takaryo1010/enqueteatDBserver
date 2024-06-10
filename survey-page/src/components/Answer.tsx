@@ -43,7 +43,6 @@ const Answer: React.FC = () => {
       setIsAuthenticated(true);
     }
 
-
     // console.log("isAuthenticated", isAuthenticated);
   }, [location.search, form_id]);
 
@@ -57,6 +56,16 @@ const Answer: React.FC = () => {
       }
     });
   };
+    const handleChoiceToggleRadio = (choiceId: number) => {
+      setSelectedChoices((prevChoices) => {
+        const index = prevChoices.indexOf(choiceId);
+        if (index === -1) {
+          return [choiceId];
+        } else {
+          return prevChoices.filter((id) => id !== choiceId);
+        }
+      });
+    };
 
   const handleSubmit = async () => {
     try {
@@ -159,54 +168,112 @@ const Answer: React.FC = () => {
               </div>
               <ul className="choice-list">
                 {question.choices.map((choice: any) => (
-                  <li key={choice.choice_id} className="choice-container">
-                    <div className="choice-wrapper">
-                      <span>{choice.choice_text}</span>
-                      <button
-                        className={
-                          selectedChoices.includes(choice.choice_id)
-                            ? "selected"
-                            : "unselected"
-                        }
-                        onClick={() => handleChoiceToggle(choice.choice_id)}
-                      >
-                        選択
-                      </button>
-                    </div>
-                    {!isNaN(
-                      choice.vote_counter /
-                        question.choices.reduce(
-                          (total: number, choice: any) =>
-                            total + choice.vote_counter,
-                          0
-                        )
-                    ) && (
-                      <div
-                        className="choice-vote-bar"
-                        style={{
-                          width: `${
-                            (choice.vote_counter /
-                              question.choices.reduce(
-                                (total: number, choice: any) =>
-                                  total + choice.vote_counter,
-                                0
-                              )) *
-                            100
-                          }%`,
-                        }}
-                      >
-                        {Math.ceil(
-                          (choice.vote_counter /
+                  <li key={choice.choice_id} className="choice-item">
+                    {question.question_type === 1 ? (
+                      <li key={choice.choice_id} className="choice-container">
+                        <div className="choice-wrapper">
+                          <span>{choice.choice_text}</span>
+                          <button
+                            className={
+                              selectedChoices.includes(choice.choice_id)
+                                ? "selected"
+                                : "unselected"
+                            }
+                            onClick={() =>
+                              handleChoiceToggle(choice.choice_id)
+                            }
+                          >
+                            選択
+                          </button>
+                        </div>
+                        {!isNaN(
+                          choice.vote_counter /
                             question.choices.reduce(
                               (total: number, choice: any) =>
                                 total + choice.vote_counter,
                               0
-                            )) *
-                            100
+                            )
+                        ) && (
+                          <div
+                            className="choice-vote-bar"
+                            style={{
+                              width: `${
+                                (choice.vote_counter /
+                                  question.choices.reduce(
+                                    (total: number, choice: any) =>
+                                      total + choice.vote_counter,
+                                    0
+                                  )) *
+                                100
+                              }%`,
+                            }}
+                          >
+                            {Math.ceil(
+                              (choice.vote_counter /
+                                question.choices.reduce(
+                                  (total: number, choice: any) =>
+                                    total + choice.vote_counter,
+                                  0
+                                )) *
+                                100
+                            )}
+                            %
+                          </div>
                         )}
-                        %
-                      </div>
-                    )}
+                      </li>
+                    ) : question.question_type === 2 ? (
+                      <li key={choice.choice_id} className="choice-container">
+                        <div className="choice-wrapper">
+                          <span>{choice.choice_text}</span>
+                          <button
+                            className={
+                              selectedChoices.includes(choice.choice_id)
+                                ? "selected"
+                                : "unselected"
+                            }
+                            onClick={() =>
+                              handleChoiceToggleRadio(choice.choice_id)
+                            }
+                          >
+                            選択
+                          </button>
+                        </div>
+                        {!isNaN(
+                          choice.vote_counter /
+                            question.choices.reduce(
+                              (total: number, choice: any) =>
+                                total + choice.vote_counter,
+                              0
+                            )
+                        ) && (
+                          <div
+                            className="choice-vote-bar"
+                            style={{
+                              width: `${
+                                (choice.vote_counter /
+                                  question.choices.reduce(
+                                    (total: number, choice: any) =>
+                                      total + choice.vote_counter,
+                                    0
+                                  )) *
+                                100
+                              }%`,
+                            }}
+                          >
+                            {Math.ceil(
+                              (choice.vote_counter /
+                                question.choices.reduce(
+                                  (total: number, choice: any) =>
+                                    total + choice.vote_counter,
+                                  0
+                                )) *
+                                100
+                            )}
+                            %
+                          </div>
+                        )}
+                      </li>
+                    ) : null}
                   </li>
                 ))}
               </ul>
