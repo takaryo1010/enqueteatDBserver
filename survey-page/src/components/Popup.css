@@ -30,7 +30,7 @@ h2 {
   margin-bottom: 20px;
 }
 
-.popup-content button {
+.close-button  {
   text-decoration: none;
   color: #fff;
   background-color: #99a9b9;
@@ -41,11 +41,21 @@ h2 {
   cursor: pointer;
 }
 
-.popup-content button:hover {
+.close-button:hover {
   background-color: #b30c00;
 }
 .copyTarget {
-  background-color: #c0b4b3;
+  text-decoration: none;
+  color: #fff;
+  background-color: #99a9b9;
+  padding: 10px 20px;
+  border-radius: 5px;
+  margin-top: 20px;
+  border: none;
+  cursor: pointer;
+}
+.copyTarget:hover{
+  background-color: #096cad;
 }
 
 a {

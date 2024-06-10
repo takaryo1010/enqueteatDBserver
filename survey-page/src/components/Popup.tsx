@@ -11,24 +11,22 @@ export const Popup = ({
 }) => {
   const uri = new URL(window.location.href);
   const answerURL = uri.origin + "/Answer/" + form_id;
-  const [isNull, setIsNull] = useState(false);
   const handleClose = () => {
     if (window.confirm("アンケートURLは保存しましたか？")) {
       onClose();
     }
   };
-  if (form_id === null) {
-    setIsNull(true);
+
+  function copyToClipboard() {
+    navigator.clipboard
+      .writeText(answerURL)
+      .then(() => {
+        alert("URLがクリップボードにコピーされました！");
+      })
+      .catch((err) => {
+        console.error("クリップボードへのコピーに失敗しました: ", err);
+      });
   }
-   function copyToClipboard() {
-     const textField = document.createElement("textarea");
-     textField.innerText = answerURL;
-     document.body.appendChild(textField);
-     textField.select();
-     document.execCommand("copy");
-     textField.remove();
-     alert("URLがクリップボードにコピーされました！");
-   }
   return (
     <div className="popup-overlay">
       <div className="popup-content">

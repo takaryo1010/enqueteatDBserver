@@ -12,7 +12,6 @@ const Answer: React.FC = () => {
     null
   );
   const [access_token, setAccess_token] = useState("");
-  const [isReloded, setIsReloded] = useState(false);
   const url = `http://localhost:3000/`;
 
   const fetchData = async () => {
@@ -37,21 +36,15 @@ const Answer: React.FC = () => {
 
     if (token) {
       setAccess_token(token);
-      window.localStorage.setItem("access_token", token);
     }
 
     if (name && email) {
       setUser({ name: name, email: email } as { name: string; email: string });
       setIsAuthenticated(true);
-      window.localStorage.setItem("name", name);
-      window.localStorage.setItem("email", email);
     }
 
-    if (form_id) {
-      window.localStorage.setItem("form_id", form_id);
-    }
 
-    console.log("isAuthenticated", isAuthenticated);
+    // console.log("isAuthenticated", isAuthenticated);
   }, [location.search, form_id]);
 
   const handleChoiceToggle = (choiceId: number) => {
@@ -70,8 +63,10 @@ const Answer: React.FC = () => {
       const response = await fetch(`${url}users/${user?.email}`);
       const data = await response.json();
       const nowForm_id = window.localStorage.getItem("form_id");
+      console.log("nowForm_id", nowForm_id);
       let check = true;
       for (const formId in data.forms) {
+        console.log("formId", data.forms[formId].form_id);
         if (data.forms[formId].form_id == nowForm_id) {
           check = false;
           break;
@@ -113,7 +108,8 @@ const Answer: React.FC = () => {
     }
     const clientId =
       "606359673208-a1tb3fao58u4sbla1gn0cg28809la9an.apps.googleusercontent.com";
-    const redirectUri = new URL("http://localhost:3001" + "/Callback");
+    const redirectUri = new URL(window.location.origin + "/Callback");
+    console.log("redirectUri", redirectUri);
     const scope =
       "openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email";
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
@@ -124,11 +120,6 @@ const Answer: React.FC = () => {
   const handleSignoutClick = () => {
     window.location.href =
       new URL(window.location.href).origin + "/Answer/" + form_id;
-    window.localStorage.removeItem("access_token");
-    window.localStorage.removeItem("name");
-    window.localStorage.removeItem("email");
-    window.localStorage.removeItem("form_id");
-    setAccess_token("");
     setUser(null);
     setIsAuthenticated(false);
   };

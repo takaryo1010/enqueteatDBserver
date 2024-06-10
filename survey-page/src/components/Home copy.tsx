@@ -90,15 +90,45 @@ export const Home = (): JSX.Element => {
   };
 
   const SendToServer = async () => {
-    if (checkSendData()) {
-      try {
-        const form_id = await sendForm();
-        console.log("form_id", form_id);
-        setForm_id(form_id);
-        await sendQuestions(form_id);
-      } catch (error) {
-        console.error("Error:", error);
+    if (!isAuthenticated) {
+      alert("ログインしてください");
+      return;
+    }
+    if (form_title === "") {
+      alert("フォームタイトルを入力してください");
+      return;
+    }
+    if (form_title.length > 100) {
+      alert("フォームタイトルは100文字以内で入力してください");
+      return;
+    }
+    for (let i = 0; i < questions.length; i++) {
+      if (questions[i].question_text === "") {
+        alert("質問文を入力してください");
+        return;
       }
+      if (questions[i].question_text.length > 100) {
+        alert("質問文は100文字以内で入力してください");
+        return;
+      }
+      for (let j = 0; j < questions[i].choices.length; j++) {
+        if (questions[i].choices[j] === "") {
+          alert("選択肢を入力してください");
+          return;
+        }
+        if (questions[i].choices[j].length > 100) {
+          alert("選択肢は100文字以内で入力してください");
+          return;
+        }
+      }
+    }
+    try {
+      const form_id = await sendForm();
+      console.log("form_id", form_id);
+      setForm_id(form_id);
+      await sendQuestions(form_id);
+    } catch (error) {
+      console.error("Error:", error);
     }
   };
 
@@ -128,54 +158,7 @@ export const Home = (): JSX.Element => {
     setIsPopupVisible(false);
     setForm_id(0);
   };
-  const checkSendData = ():boolean => {
-    if (!isAuthenticated) {
-      alert("ログインしてください");
-      return false;
-    }
-    if (form_title === "") {
-      alert("フォームタイトルを入力してください");
-      return false;
-    }
-    if (form_title.length > 100) {
-      alert("フォームタイトルは100文字以内で入力してください");
-      return false;
-    }
 
-    for (let i = 0; i < questions.length; i++) {
-      if (questions[i].question_text === "") {
-        alert("質問文を入力してください");
-        return false;
-      }
-      if (questions[i].question_text.length > 100) {
-        alert("質問文は100文字以内で入力してください");
-        return false;
-      }
-      for (let j = 0; j < questions[i].choices.length; j++) {
-        if (questions[i].choices[j] === "") {
-          alert("選択肢を入力してください");
-          return false;
-        }
-        if (questions[i].choices[j].length > 100) {
-          alert("選択肢は100文字以内で入力してください");
-          return false;
-        }
-      }
-    }
-    if (questions.length > 10) {
-      alert("質問は10個までです");
-      return false;
-    }
-    if (questions.some((question) => question.choices.length > 10)) {
-      alert("選択肢は10個までです");
-      return false;
-    }
-    if (questions.length === 0) {
-      alert("質問を入力してください");
-      return false;
-    }
-    return true;
-  };
   return (
     <div className="container">
       <Auth
