@@ -16,7 +16,7 @@ export class Choice {
     @ManyToOne(() => Question, question => question.choices)
     question: Question;
 
-    @OneToMany(() => TextAnswer, textAnswer => textAnswer.choice)
+    @OneToMany(() => TextAnswer, textAnswer => textAnswer.choice,{eager: true})
     textAnswers: TextAnswer[];
 
 }

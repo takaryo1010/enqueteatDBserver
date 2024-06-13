@@ -18,6 +18,7 @@ h3 {
   border-radius: 8px;
   padding: 15px;
   margin-bottom: 20px;
+  background-color: #fff;
 }
 
 .choice-list {
@@ -123,7 +124,36 @@ h3 {
   margin-right: 10px;
 }
 
+.radio-choice-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.radio-choice-wrapper label {
+  margin-right: 10px;
+}
+
 .radio-input input[type="radio"],
 .checkbox-input input[type="checkbox"] {
   margin-right: 5px;
+}
+.radio-choice-wrapper button {
+  padding: 5px 10px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  border-radius: 100px;
+  font-size: 18px;
+
+}
+
+.radio-choice-wrapper button.selected {
+  background-color: #f0b23f;
+  color: white;
+}
+
+.radio-choice-wrapper button.unselected {
+  background-color: #ccc;
+  color: black;
 }

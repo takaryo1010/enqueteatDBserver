@@ -13,7 +13,7 @@ export class QuestionsService {
 
   findAll(): Promise<Question[]> {
     return this.questionsRepository.find({
-      relations: ['choices', 'text-answer'],
+      relations: ['choices'],
     });
   }
 

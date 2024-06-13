@@ -6,7 +6,10 @@ const Answer: React.FC = () => {
   const { form_id } = useParams<{ form_id: string }>() ?? { form_id: "" };
   const location = useLocation();
   const [questions, setQuestions] = useState<any[]>([]);
-  const [selectedChoices, setSelectedChoices] = useState<number[]>([]);
+  const [selectedChoices, setSelectedChoices] = useState<{
+    [key: string]: number[];
+  }>({});
+  const [inputTexts, setInputTexts] = useState<{ [key: string]: string }>({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string } | null>(
     null
@@ -46,32 +49,55 @@ const Answer: React.FC = () => {
     // console.log("isAuthenticated", isAuthenticated);
   }, [location.search, form_id]);
 
-  const handleChoiceToggle = (choiceId: number) => {
+  const handleChoiceToggle = (questionId: string, choiceId: number) => {
     setSelectedChoices((prevChoices) => {
-      const index = prevChoices.indexOf(choiceId);
+      const questionChoices = prevChoices[questionId] || [];
+      const index = questionChoices.indexOf(choiceId);
       if (index === -1) {
-        return [...prevChoices, choiceId];
+        return { ...prevChoices, [questionId]: [...questionChoices, choiceId] };
       } else {
-        return prevChoices.filter((id) => id !== choiceId);
+        return {
+          ...prevChoices,
+          [questionId]: questionChoices.filter((id) => id !== choiceId),
+        };
       }
     });
   };
-    const handleChoiceToggleRadio = (choiceId: number) => {
-      setSelectedChoices((prevChoices) => {
-        const index = prevChoices.indexOf(choiceId);
-        if (index === -1) {
-          return [choiceId];
-        } else {
-          return prevChoices.filter((id) => id !== choiceId);
-        }
-      });
-    };
+
+  const handleChoiceToggleRadio = (questionId: string, choiceId: number) => {
+    setSelectedChoices((prevChoices) => {
+      const questionChoices = prevChoices[questionId] || [];
+      const index = questionChoices.indexOf(choiceId);
+      if (index === -1) {
+        return { ...prevChoices, [questionId]: [choiceId] };
+      } else {
+        return {
+          ...prevChoices,
+          [questionId]: questionChoices.filter((id) => id !== choiceId),
+        };
+      }
+    });
+  };
 
   const handleSubmit = async () => {
-    try {
+    for (const questionId in selectedChoices) {
+      console.log("selectedChoices[questionId]", selectedChoices[questionId]);
+      if (selectedChoices[questionId].length === 0) {
+        alert("全ての質問に1つ以上回答してください。");
+        return;
+      }
+    }
+    for (const choiceId in inputTexts) {
+      console.log("inputTexts[choiceId]", inputTexts[choiceId]);
+      if (inputTexts[choiceId] === "") {
+        alert("全ての質問に記述し、回答してください。");
+        return;
+      }
+    }
+    try {  
       const response = await fetch(`${url}users/${user?.email}`);
       const data = await response.json();
-      const nowForm_id = window.localStorage.getItem("form_id");
+      const nowForm_id = window.location.pathname.split("/")[2];
       console.log("nowForm_id", nowForm_id);
       let check = true;
       for (const formId in data.forms) {
@@ -81,6 +107,7 @@ const Answer: React.FC = () => {
           break;
         }
       }
+
 
       if (check) {
         await fetch(`${url}users/${user?.email}`, {
@@ -93,8 +120,36 @@ const Answer: React.FC = () => {
           }),
         });
 
-        for (const choiceId of selectedChoices) {
-          await fetch(`${url}choices/${choiceId}/vote`, {
+        for (const questionId in selectedChoices) {
+          if (selectedChoices[questionId].length === 0) {
+            alert("全ての質問に1つ以上回答してください。");
+            return;
+          }
+          for (const choiceId of selectedChoices[questionId]) {
+            
+            await fetch(`${url}choices/${choiceId}/vote`, {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+          }
+          
+        }
+        for (const choice_id in inputTexts) {
+          await fetch(`${url}text-answer`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              text: inputTexts[choice_id],
+              choice: {
+                choice_id: choice_id,
+              },
+            }),
+          });
+          await fetch(`${url}choices/${choice_id}/vote`, {
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
@@ -131,6 +186,15 @@ const Answer: React.FC = () => {
       new URL(window.location.href).origin + "/Answer/" + form_id;
     setUser(null);
     setIsAuthenticated(false);
+  };
+
+  const handleInputText = (questionId: string, choiceId: number) => (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setInputTexts((prevInputTexts) => ({
+      ...prevInputTexts,
+      [choiceId]: event.target.value,
+    }));
   };
 
   return (
@@ -171,19 +235,24 @@ const Answer: React.FC = () => {
                   <li key={choice.choice_id} className="choice-item">
                     {question.question_type === 1 ? (
                       <li key={choice.choice_id} className="choice-container">
-                        <div className="choice-wrapper">
+                        <div className="radio-choice-wrapper">
                           <span>{choice.choice_text}</span>
                           <button
                             className={
-                              selectedChoices.includes(choice.choice_id)
+                              (
+                                selectedChoices[question.question_id] || []
+                              ).includes(choice.choice_id)
                                 ? "selected"
                                 : "unselected"
                             }
                             onClick={() =>
-                              handleChoiceToggle(choice.choice_id)
+                              handleChoiceToggleRadio(
+                                question.question_id,
+                                choice.choice_id
+                              )
                             }
                           >
-                            選択
+                            ●
                           </button>
                         </div>
                         {!isNaN(
@@ -227,12 +296,17 @@ const Answer: React.FC = () => {
                           <span>{choice.choice_text}</span>
                           <button
                             className={
-                              selectedChoices.includes(choice.choice_id)
+                              (
+                                selectedChoices[question.question_id] || []
+                              ).includes(choice.choice_id)
                                 ? "selected"
                                 : "unselected"
                             }
                             onClick={() =>
-                              handleChoiceToggleRadio(choice.choice_id)
+                              handleChoiceToggle(
+                                question.question_id,
+                                choice.choice_id
+                              )
                             }
                           >
                             選択
@@ -273,7 +347,16 @@ const Answer: React.FC = () => {
                           </div>
                         )}
                       </li>
-                    ) : null}
+                    ) : (
+                      question.question_type === 3 && (
+                        <input
+                          onChange={handleInputText(
+                            question.question_id,
+                            choice.choice_id
+                          )}
+                        ></input>
+                      )
+                    )}
                   </li>
                 ))}
               </ul>
