@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import "./Answer.css";
-import { Injectable } from '@nestjs/common';
+
 
 const Answer: React.FC = () => {
   const { form_id } = useParams<{ form_id: string }>() ?? { form_id: "" };
