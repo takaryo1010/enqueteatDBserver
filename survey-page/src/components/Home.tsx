@@ -4,6 +4,7 @@ import "./Home.css";
 import { Popup } from "./Popup";
 import { Question } from "./Question";
 import { Auth } from "./AuthHome";
+import { ToggleBar } from "./ToggleBar";
 
 export const Home = (): JSX.Element => {
   const url = "http://localhost:3000/";
@@ -11,18 +12,21 @@ export const Home = (): JSX.Element => {
   const [form_id, setForm_id] = useState<number>(0);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
- 
+  const [isToggleBarOpen, setIsToggleBarOpen] = useState(false); // State for the ToggleBar
+
   const [user, setUser] = useState<{ name: string; email: string } | null>(
     null
   );
   const [questions, setQuestions] = useState([
-    { question_text: "",question_type:1, choices: [""] },
+    { question_text: "", question_type: 1, choices: [""] },
   ]);
 
   const handleForm_titleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm_title(e.target.value);
   };
-
+  const toggleOpen = () => {
+    setIsToggleBarOpen(!isToggleBarOpen);
+  };
   const sendQuestions = async (form_id: number): Promise<void> => {
     try {
       const questionPromises = questions.map(async (questionItem) => {
@@ -116,10 +120,13 @@ export const Home = (): JSX.Element => {
           form_administrator: user?.email,
         }),
       });
-      console.log("form_title", JSON.stringify({
-        form_title: form_title,
-        form_administrator: user?.email,
-      }));
+      console.log(
+        "form_title",
+        JSON.stringify({
+          form_title: form_title,
+          form_administrator: user?.email,
+        })
+      );
 
       const data = await response.json();
       console.log("Success:", data);
@@ -213,6 +220,8 @@ export const Home = (): JSX.Element => {
 
       {isAuthenticated && (
         <div>
+          <ToggleBar isOpen={isToggleBarOpen} toggleOpen={toggleOpen} name={user?.name} email={user?.email} />{" "}
+        
           <div className="form-group">
             <label className="form-label">フォームタイトル:</label>
             <input
@@ -227,7 +236,6 @@ export const Home = (): JSX.Element => {
             questions={questions}
             setQuestions={setQuestions}
           />
-
           <button className="submit-button" onClick={handleSubmit}>
             フォームを送信
           </button>

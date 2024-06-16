@@ -12,6 +12,20 @@ h2,
 h3 {
   color: #333;
 }
+.text-answer-box {
+  max-height: 200px; /* ボックスの高さを調整します */
+  overflow-y: auto; /* 縦スクロールを有効にします */
+  border: 1px solid #ccc; /* ボックスの境界線 */
+  padding: 10px; /* ボックス内の余白 */
+  margin: 10px 0; /* ボックス周りの余白 */
+  border-radius: 5px; /* ボックスの角丸 */
+}
+.text-answer{
+  margin: 3px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+
+}
 
 .question-container {
   border: 1px solid #ccc;
@@ -157,3 +171,35 @@ h3 {
   background-color: #ccc;
   color: black;
 }
+
+.bar {
+  width: 19px;
+  height: 4px;
+  background-color: #000;
+  margin: 3px 0;
+  transition: transform 0.8s ease;
+}
+
+ .bar:nth-child(1) {
+  transform: rotate(-45deg) translate(-2px, 0px);
+}
+
+ .bar:nth-child(2) {
+  opacity: 0;
+}
+ .bar:nth-child(3) {
+  transform: rotate(45deg) translate(-2px, 0px);
+}
+.back-button {
+  
+  color: #000000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: block;
+  width: 70px;
+  margin-top: 20px;
+  
+  
+} 
