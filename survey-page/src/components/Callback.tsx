@@ -9,7 +9,20 @@ const Callback: React.FC = () => {
   const [user, setUser] = useState<{ name: string; email: string } | null>(
     null
   );
-
+  // CSRFトークンの取得関数
+  const fetchCSRFToken = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/" + "csrf-token", {
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await response.json();
+      return data.csrfToken;
+    } catch (error) {
+      console.error("Error fetching CSRF token:", error);
+      throw error;
+    }
+  };
   useEffect(() => {
     const hash = window.location.hash;
     if (hash) {
@@ -21,7 +34,7 @@ const Callback: React.FC = () => {
           },
         })
           .then((response) => response.json())
-          .then((data) => {
+          .then(async (data) => {
             window.localStorage.setItem("access_token", token);
             setAccess_token(token);
             window.localStorage.setItem("name", data.name);
@@ -31,10 +44,12 @@ const Callback: React.FC = () => {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
+                "csrf-token":await fetchCSRFToken(),
               },
               body: JSON.stringify({
                 user_email: data.email,
               }),
+              credentials: "include",
             }).then((response) => console.log(response.json()));
 
             const form_id = window.localStorage.getItem("form_id");

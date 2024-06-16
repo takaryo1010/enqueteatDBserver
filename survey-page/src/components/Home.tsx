@@ -27,7 +27,26 @@ export const Home = (): JSX.Element => {
   const toggleOpen = () => {
     setIsToggleBarOpen(!isToggleBarOpen);
   };
-  const sendQuestions = async (form_id: number): Promise<void> => {
+  // CSRFトークンの取得関数
+  const fetchCSRFToken = async () => {
+    try {
+      const response = await fetch(url + "csrf-token", {
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await response.json();
+      return data.csrfToken;
+    } catch (error) {
+      console.error("Error fetching CSRF token:", error);
+      throw error;
+    }
+  };
+
+  // 質問の送信関数
+  const sendQuestions = async (
+    form_id: number,
+    csrfToken: string
+  ): Promise<void> => {
     try {
       const questionPromises = questions.map(async (questionItem) => {
         const question = {
@@ -35,14 +54,15 @@ export const Home = (): JSX.Element => {
           question_type: questionItem.question_type,
           form: { form_id },
         };
-        // console.log(question);
-
+        
         const response = await fetch(url + "questions", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "CSRF-Token": csrfToken, // CSRFトークンをヘッダーに含める
           },
           body: JSON.stringify(question),
+          credentials: "include",
         });
 
         const data = await response.json();
@@ -60,7 +80,9 @@ export const Home = (): JSX.Element => {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
+                  "CSRF-Token": csrfToken, // CSRFトークンをヘッダーに含める
                 },
+                credentials: "include",
                 body: JSON.stringify(choice),
               });
               const choiceData = await choiceResponse.json();
@@ -95,38 +117,22 @@ export const Home = (): JSX.Element => {
     }
   };
 
-  const SendToServer = async () => {
-    if (checkSendData()) {
-      try {
-        const form_id = await sendForm();
-        console.log("form_id", form_id);
-        setForm_id(form_id);
-        await sendQuestions(form_id);
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    }
-  };
-
-  const sendForm = async () => {
+  // フォームの送信関数
+  const sendForm = async (csrfToken: string) => {
     try {
+      console.log(csrfToken);
       const response = await fetch(url + "forms", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "CSRF-Token": csrfToken, // CSRFトークンをヘッダーに含める
         },
         body: JSON.stringify({
           form_title: form_title,
           form_administrator: user?.email,
         }),
+        credentials: "include",
       });
-      console.log(
-        "form_title",
-        JSON.stringify({
-          form_title: form_title,
-          form_administrator: user?.email,
-        })
-      );
 
       const data = await response.json();
       console.log("Success:", data);
@@ -134,6 +140,19 @@ export const Home = (): JSX.Element => {
     } catch (error) {
       console.error("Error:", error);
       throw error;
+    }
+  };
+  const SendToServer = async () => {
+    if (checkSendData()) {
+      try {
+        const csrfToken = await fetchCSRFToken();
+        const form_id = await sendForm(csrfToken);
+        console.log("form_id", form_id);
+        setForm_id(form_id);
+        await sendQuestions(form_id, csrfToken);
+      } catch (error) {
+        console.error("Error:", error);
+      }
     }
   };
 
@@ -220,8 +239,12 @@ export const Home = (): JSX.Element => {
 
       {isAuthenticated && (
         <div>
-          <ToggleBar isOpen={isToggleBarOpen} toggleOpen={toggleOpen} name={user?.name} email={user?.email} />{" "}
-        
+          <ToggleBar
+            isOpen={isToggleBarOpen}
+            toggleOpen={toggleOpen}
+            name={user?.name}
+            email={user?.email}
+          />{" "}
           <div className="form-group">
             <label className="form-label">フォームタイトル:</label>
             <input

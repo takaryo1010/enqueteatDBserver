@@ -68,7 +68,7 @@ export const ToggleBar: React.FC<ToggleBarProps> = ({
 
       {isOpen && (
         <nav className="nav-menu">
-          <p className="title">作成済みフォーム</p>
+          <p className="toggle-title">作成済みフォーム</p>
           <ul>
             {forms.map((form) => (
               <li key={form.form_id}>

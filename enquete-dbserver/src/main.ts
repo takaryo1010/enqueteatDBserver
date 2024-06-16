@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as csurf from 'csurf';
 import * as cookieParser from 'cookie-parser';
+import * as cors from 'cors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,7 +12,7 @@ async function bootstrap() {
   app.use(cookieParser());
   // CSRFミドルウェアを追加
   app.use(csurf({ cookie: true }));
-
+  app.use(cors({ origin: 'http://localhost:3001', credentials: true }))
   const config = new DocumentBuilder()
     .setTitle('Forms API')
     .setDescription('The Forms API description')
@@ -25,6 +26,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
+
 
 
   await app.listen(3000);

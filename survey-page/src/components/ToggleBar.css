@@ -68,6 +68,9 @@
   padding: 10px;
   transition: background-color 0.3s ease;
   background-color: #17c5b3;
+ white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
 }
 
 .nav-menu ul li a:hover {
@@ -75,7 +78,7 @@
   
 }
 
-.title{
+.toggle-title{
   color: white;
   text-align: center;
   padding: 10px;

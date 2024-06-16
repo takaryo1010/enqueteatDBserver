@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import "./Answer.css";
+import { Injectable } from '@nestjs/common';
 
 const Answer: React.FC = () => {
   const { form_id } = useParams<{ form_id: string }>() ?? { form_id: "" };
@@ -15,6 +16,7 @@ const Answer: React.FC = () => {
     null
   );
   const [access_token, setAccess_token] = useState("");
+  const [csrfToken, setCsrfToken] = useState<Promise<string>>(Promise.resolve(""));
   const url = `http://localhost:3000/`;
 
   const fetchData = async () => {
@@ -29,6 +31,7 @@ const Answer: React.FC = () => {
 
   useEffect(() => {
     fetchData();
+    setCsrfToken(fetchCSRFToken());
   }, [form_id]);
 
   useEffect(() => {
@@ -78,7 +81,20 @@ const Answer: React.FC = () => {
       }
     });
   };
-
+  // CSRFトークンの取得関数
+  const fetchCSRFToken = async () => {
+    try {
+      const response = await fetch(url + "csrf-token", {
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await response.json();
+      return data.csrfToken;
+    } catch (error) {
+      console.error("Error fetching CSRF token:", error);
+      throw error;
+    }
+  };
   const handleSubmit = async () => {
     for (const questionId in selectedChoices) {
       console.log("selectedChoices[questionId]", selectedChoices[questionId]);
@@ -93,8 +109,12 @@ const Answer: React.FC = () => {
         alert("全ての質問に記述し、回答してください。");
         return;
       }
+      if(inputTexts[choiceId].length > 100){
+        alert("100文字以内で記述してください。");
+        return;
+      }
     }
-    try {  
+    try {
       const response = await fetch(`${url}users/${user?.email}`);
       const data = await response.json();
       const nowForm_id = window.location.pathname.split("/")[2];
@@ -108,16 +128,17 @@ const Answer: React.FC = () => {
         }
       }
 
-
       if (check) {
         await fetch(`${url}users/${user?.email}`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            "csrf-token": await csrfToken,
           },
           body: JSON.stringify({
             form_id: form_id,
           }),
+          credentials: "include",
         });
 
         for (const questionId in selectedChoices) {
@@ -126,21 +147,22 @@ const Answer: React.FC = () => {
             return;
           }
           for (const choiceId of selectedChoices[questionId]) {
-            
             await fetch(`${url}choices/${choiceId}/vote`, {
               method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
+                "csrf-token": await csrfToken,
               },
+              credentials: "include",
             });
           }
-          
         }
         for (const choice_id in inputTexts) {
           await fetch(`${url}text-answer`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              "csrf-token": await csrfToken,
             },
             body: JSON.stringify({
               text: inputTexts[choice_id],
@@ -148,12 +170,15 @@ const Answer: React.FC = () => {
                 choice_id: choice_id,
               },
             }),
+            credentials: "include",
           });
           await fetch(`${url}choices/${choice_id}/vote`, {
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
+              "csrf-token": await csrfToken,
             },
+            credentials: "include",
           });
         }
         alert("投票が完了しました。ありがとうございます。");
@@ -188,14 +213,14 @@ const Answer: React.FC = () => {
     setIsAuthenticated(false);
   };
 
-  const handleInputText = (questionId: string, choiceId: number) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setInputTexts((prevInputTexts) => ({
-      ...prevInputTexts,
-      [choiceId]: event.target.value,
-    }));
-  };
+  const handleInputText =
+    (questionId: string, choiceId: number) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setInputTexts((prevInputTexts) => ({
+        ...prevInputTexts,
+        [choiceId]: event.target.value,
+      }));
+    };
 
   return (
     <div className="answer-container">
