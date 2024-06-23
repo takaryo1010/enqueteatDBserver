@@ -28,33 +28,79 @@ export class QuestionsController {
         [
           {
             question_id: 1,
-            question_type: 1,
-            question_text: 'クエスチョンテキスト1',
+            question_type: 0,
+            question_text: 'question 1',
             choices: [
               {
                 choice_id: 1,
-                choice_text: '選択肢1',
-                vote_counter: 1,
-              },
-              {
-                choice_id: 2,
-                choice_text: '選択肢2',
-                vote_counter: 0,
+                choice_text: 'choice 3',
+                vote_counter: 2,
+                textAnswers: [
+                  {
+                    answer_id: 1,
+                    text: 'テキスト回答',
+                  },
+                  {
+                    answer_id: 2,
+                    text: 'テキスト回答',
+                  },
+                  {
+                    answer_id: 11,
+                    text: 'テキスト回答',
+                  },
+                  {
+                    answer_id: 15,
+                    text: 'テキスト回答',
+                  },
+                ],
               },
             ],
             form: {
-              form_id: 1,
-              form_title: 'サンプルフォームタイトル1',
+              form_id: 6,
+              form_title: 'フォームのタイトル6',
+              form_administrator: null,
             },
           },
           {
             question_id: 2,
-            question_text: 'クエスチョンテキスト2',
-            question_type: 1,
-            choices: [],
+            question_type: 0,
+            question_text: 'さしすせそ',
+            choices: [
+              {
+                choice_id: 2,
+                choice_text: 'たちつてと',
+                vote_counter: 1,
+                textAnswers: [],
+              },
+            ],
             form: {
-              form_id: 1,
-              form_title: 'サンプルフォームタイトル1',
+              form_id: 7,
+              form_title: 'あいうえお',
+              form_administrator: null,
+            },
+          },
+          {
+            question_id: 3,
+            question_type: 3,
+            question_text: 'question 3',
+            choices: [
+              {
+                choice_id: 3,
+                choice_text: '多い',
+                vote_counter: 13,
+                textAnswers: [],
+              },
+              {
+                choice_id: 4,
+                choice_text: '少ない',
+                vote_counter: 16,
+                textAnswers: [],
+              },
+            ],
+            form: {
+              form_id: 8,
+              form_title: '学校',
+              form_administrator: null,
             },
           },
         ],
@@ -67,7 +113,7 @@ export class QuestionsController {
 
   @Get(':id')
   @ApiOperation({
-    summary: 'IDによる質問の取得',
+    summary: 'IDによる質問の取得(CSRFトークン必須)',
     description: 'IDによって特定の質問を取得します。',
   })
   @ApiParam({ name: 'id', description: '取得する質問のID' })
@@ -77,24 +123,38 @@ export class QuestionsController {
     schema: {
       example: {
         question_id: 1,
-        question_type: 1,
-        question_text: 'クエスチョンテキスト1',
+        question_type: 0,
+        question_text: 'question 1',
+        form: {
+          form_id: 6,
+          form_title: 'フォームのタイトル6',
+          form_administrator: null,
+        },
         choices: [
           {
             choice_id: 1,
-            choice_text: '選択肢1',
-            vote_counter: 1,
-          },
-          {
-            choice_id: 2,
-            choice_text: '選択肢2',
-            vote_counter: 0,
+            choice_text: 'choice 3',
+            vote_counter: 2,
+            textAnswers: [
+              {
+                answer_id: 1,
+                text: 'テキスト回答',
+              },
+              {
+                answer_id: 2,
+                text: 'テキスト回答',
+              },
+              {
+                answer_id: 11,
+                text: 'テキスト回答',
+              },
+              {
+                answer_id: 15,
+                text: 'テキスト回答',
+              },
+            ],
           },
         ],
-        form: {
-          form_id: 1,
-          form_title: 'サンプルフォームタイトル1',
-        },
       },
     },
   })
@@ -115,34 +175,38 @@ export class QuestionsController {
       example: [
         {
           question_id: 1,
-          question_type: 1,
-          question_text: 'クエスチョンテキスト1',
+          question_type: 3,
+          question_text: 'questionqqq',
+          form: {
+            form_id: 6,
+            form_title: 'フォームのタイトル6',
+            form_administrator: null,
+          },
           choices: [
             {
               choice_id: 1,
-              choice_text: '選択肢1',
-              vote_counter: 1,
-            },
-            {
-              choice_id: 2,
-              choice_text: '選択肢2',
-              vote_counter: 0,
+              choice_text: 'choice 3',
+              vote_counter: 2,
+              textAnswers: [
+                {
+                  answer_id: 1,
+                  text: 'テキスト回答',
+                },
+                {
+                  answer_id: 2,
+                  text: 'テキスト回答',
+                },
+                {
+                  answer_id: 11,
+                  text: 'テキスト回答',
+                },
+                {
+                  answer_id: 15,
+                  text: 'テキスト回答',
+                },
+              ],
             },
           ],
-          form: {
-            form_id: 1,
-            form_title: 'サンプルフォームタイトル1',
-          },
-        },
-        {
-          question_id: 2,
-          question_type: 1,
-          question_text: 'クエスチョンテキスト2',
-          choices: [],
-          form: {
-            form_id: 1,
-            form_title: 'サンプルフォームタイトル1',
-          },
         },
       ],
     },
@@ -209,19 +273,39 @@ export class QuestionsController {
   @ApiBody({
     schema: {
       example: {
+        question_id: 1,
         question_type: 3,
-        question_text: 'question 3',
-      },
-    },
-    description: '更新する質問の詳細',
-  })
-  @ApiResponse({
-    status: 200,
-    description: '質問が正常に更新されました。',
-    schema: {
-      example: {
-        question_id: 3,
-        question_text: 'クエスチョンテキスト3',
+        question_text: 'questionqqq',
+        form: {
+          form_id: 6,
+          form_title: 'フォームのタイトル6',
+          form_administrator: null,
+        },
+        choices: [
+          {
+            choice_id: 1,
+            choice_text: 'choice 3',
+            vote_counter: 2,
+            textAnswers: [
+              {
+                answer_id: 1,
+                text: 'テキスト回答',
+              },
+              {
+                answer_id: 2,
+                text: 'テキスト回答',
+              },
+              {
+                answer_id: 11,
+                text: 'テキスト回答',
+              },
+              {
+                answer_id: 15,
+                text: 'テキスト回答',
+              },
+            ],
+          },
+        ],
       },
     },
   })

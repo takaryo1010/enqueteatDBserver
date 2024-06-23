@@ -15,6 +15,11 @@ const View: React.FC = () => {
     null
   );
   const [access_token, setAccess_token] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [formTitle, setFormTitle] = useState("");
+  const [questionTexts, setQuestionTexts] = useState<{ [key: string]: string }>(
+    {}
+  );
 
   const url = `http://localhost:3000/`;
 
@@ -23,11 +28,34 @@ const View: React.FC = () => {
       const response = await fetch(`${url}questions/${form_id}/form`);
       const data = await response.json();
       setQuestions(data);
+      if (data.length > 0) {
+        setFormTitle(data[0].form.form_title);
+        const initialQuestionTexts = data.reduce(
+          (acc: { [key: string]: string }, question: any) => {
+            acc[question.question_id] = question.question_text;
+            return acc;
+          },
+          {}
+        );
+        setQuestionTexts(initialQuestionTexts);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
-
+  const fetchCSRFToken = async () => {
+    try {
+      const response = await fetch(url + "csrf-token", {
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await response.json();
+      return data.csrfToken;
+    } catch (error) {
+      console.error("Error fetching CSRF token:", error);
+      throw error;
+    }
+  };
   useEffect(() => {
     fetchData();
   }, [form_id]);
@@ -78,6 +106,59 @@ const View: React.FC = () => {
       `#access_token=${access_token}&name=${user?.name}&email=${user?.email}`;
   };
 
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleSaveClick = async () => {
+    try {
+      const csrfToken= await fetchCSRFToken();
+      fetch(`${url}forms/${form_id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "CSRF-Token": csrfToken,
+        },
+        credentials: "include",
+
+        body: JSON.stringify({ form_title: formTitle }),
+      });
+      questions.forEach(async (question) => {
+        await fetch(`${url}questions/${question.question_id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "CSRF-Token": csrfToken,
+          },
+          credentials: "include",
+
+          body: JSON.stringify({
+            question_text: questionTexts[question.question_id],
+          }),
+        });
+      });
+      setIsEditing(false);
+      fetchData();
+      window.location.reload();
+    } catch (error) {
+      console.error("Error saving data:", error);
+    }
+  };
+
+  const handleFormTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormTitle(e.target.value);
+  };
+
+  const handleQuestionTextChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    questionId: string
+  ) => {
+    setQuestionTexts({
+      ...questionTexts,
+      [questionId]: e.target.value,
+    });
+  };
+
   return (
     <div className="answer-container">
       {!isAuthenticated ? (
@@ -96,20 +177,51 @@ const View: React.FC = () => {
               <div className="bar"></div>
             </button>
           </div>
-          <p>ログイン中: {user?.name}</p>
           <button onClick={handleSignoutClick} className="auth-button">
             ログアウト
           </button>
+          <p>ログイン中: {user?.name}</p>
         </div>
       )}
       {isAuthenticated && (
         <div>
-          <h1>{questions.length > 0 ? questions[0].form.form_title : ""}</h1>
+          {isEditing ? (
+            <div>
+              <button onClick={handleSaveClick} className="edit-button">
+                保存
+              </button>
+              <p></p>
+              <input
+                type="text"
+                value={formTitle}
+                onChange={handleFormTitleChange}
+              />
+            </div>
+          ) : (
+            <div>
+              <button onClick={handleEditClick} className="edit-button">
+                編集
+              </button>
+
+              <h1>{formTitle}</h1>
+            </div>
+          )}
           <h2>質問一覧</h2>
+
           {questions.map((question) => (
             <div key={question.question_id} className="question-container">
               <div className="question-header">
-                <h3>{question.question_text}</h3>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={questionTexts[question.question_id]}
+                    onChange={(e) =>
+                      handleQuestionTextChange(e, question.question_id)
+                    }
+                  />
+                ) : (
+                  <h3>{question.question_text}</h3>
+                )}
                 <span className="total-votes">
                   総投票数:
                   {question.choices.reduce(

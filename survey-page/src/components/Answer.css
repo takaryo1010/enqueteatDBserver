@@ -203,3 +203,21 @@ h3 {
   
   
 } 
+.edit-button {
+  background-color: #ffffff;
+  color: #000000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: block;
+  width: 200px;
+  margin-top: 20px;
+  box-shadow: #707070 3px 3px 0px;
+}
+.edit-button:hover {
+  background-color: #3f4ef0;
+  color: #ffffff;
+  transform: translate(2px, 2px);
+  box-shadow: #707070 1px 1px 0px;
+}

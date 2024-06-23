@@ -10,7 +10,7 @@ async function bootstrap() {
 
   // Cookieのパースを有効にする
   app.use(cookieParser());
-  // CSRFミドルウェアを追加
+  // // CSRFミドルウェアを追加
   app.use(csurf({ cookie: true }));
   app.use(cors({ origin: 'http://localhost:3001', credentials: true }))
   const config = new DocumentBuilder()

@@ -54,7 +54,6 @@ describe('UsersController', () => {
         forms: [],
       };
       const form_id = 1;
-      jest.spyOn(controller, 'addForm').mockResolvedValueOnce(user); 
 
       const form = new Form();
       form.form_id = form_id;
@@ -63,11 +62,13 @@ describe('UsersController', () => {
         user_email: 'example@gmail.com',
         forms: [form],
       };
-      const res = await controller.addForm('example@gmail.com', form_id)
-      console.log(res)
-      expect(res).toEqual(
-        updatedUser,
-      );
+
+      jest.spyOn(controller, 'addForm').mockResolvedValueOnce(updatedUser);
+
+      const res = await controller.addForm('example@gmail.com', form_id);
+      console.log(res);
+      expect(res).toEqual(updatedUser);
     });
   });
+
 });

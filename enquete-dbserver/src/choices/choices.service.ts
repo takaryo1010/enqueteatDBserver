@@ -4,6 +4,7 @@ import { UpdateChoiceDto } from './dto/update-choice.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Choice } from './entities/choice.entity';
+
 @Injectable()
 export class ChoicesService {
   constructor(
@@ -15,15 +16,12 @@ export class ChoicesService {
     return this.choicesRepository.find({ relations: ['question'] });
   }
 
-  async findOne(id: number): Promise<Choice> {
+  async findOne(id: number): Promise<Choice | null> {
     const choice = await this.choicesRepository.findOne({
       where: { choice_id: id },
-      relations: [ 'textAnswers'],
+      relations: ['textAnswers'],
     });
-    if (!choice) {
-      throw new NotFoundException('Choice not found');
-    }
-    return choice;
+    return choice || null;
   }
 
   create(@Body() createChoiceDto: CreateChoiceDto): Promise<Choice> {
@@ -47,6 +45,7 @@ export class ChoicesService {
   async remove(id: number): Promise<void> {
     await this.choicesRepository.delete(id);
   }
+
   async update(id: number, updateChoiceDto: UpdateChoiceDto): Promise<Choice> {
     const choice = await this.choicesRepository.findOneBy({ choice_id: id });
     if (!choice) {

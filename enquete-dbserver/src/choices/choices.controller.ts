@@ -10,6 +10,7 @@ import {
   ApiBody,
   ApiParam,
 } from '@nestjs/swagger';
+import { TextAnswer } from 'src/text-answer/entities/text-answer.entity';
 @Controller('choices')
 @ApiTags('choices')
 export class ChoicesController {
@@ -28,53 +29,94 @@ export class ChoicesController {
       example: [
         {
           choice_id: 1,
-          choice_text: '選択肢1',
-          vote_counter: 1,
+          choice_text: 'choice 3',
+          vote_counter: 2,
           question: {
             question_id: 1,
-            question_text: 'クエスチョンテキスト1',
+            question_type: 3,
+            question_text: 'questionqqq',
             form: {
-              form_id: 1,
-              form_title: 'サンプルフォームタイトル1',
+              form_id: 6,
+              form_title: 'フォームのタイトル6',
+              form_administrator: null,
             },
             choices: [
               {
                 choice_id: 1,
-                choice_text: '選択肢1',
-                vote_counter: 1,
-              },
-              {
-                choice_id: 2,
-                choice_text: '選択肢2',
-                vote_counter: 0,
+                choice_text: 'choice 3',
+                vote_counter: 2,
               },
             ],
           },
+          textAnswers: [
+            {
+              answer_id: 1,
+              text: 'テキスト回答',
+            },
+            {
+              answer_id: 2,
+              text: 'テキスト回答',
+            },
+            {
+              answer_id: 11,
+              text: 'テキスト回答',
+            },
+            {
+              answer_id: 15,
+              text: 'テキスト回答',
+            },
+          ],
         },
         {
           choice_id: 2,
-          choice_text: 'choice 2',
-          vote_counter: 0,
+          choice_text: 'たちつてと',
+          vote_counter: 1,
           question: {
-            question_id: 1,
-            question_text: 'クエスチョンテキスト1',
+            question_id: 2,
+            question_type: 0,
+            question_text: 'さしすせそ',
             form: {
-              form_id: 1,
-              form_title: 'サンプルフォームタイトル1',
+              form_id: 7,
+              form_title: 'あいうえお',
+              form_administrator: null,
             },
             choices: [
               {
-                choice_id: 1,
-                choice_text: '選択肢1',
-                vote_counter: 1,
-              },
-              {
                 choice_id: 2,
-                choice_text: '選択肢2',
-                vote_counter: 0,
+                choice_text: 'たちつてと',
+                vote_counter: 1,
               },
             ],
           },
+          textAnswers: [],
+        },
+        {
+          choice_id: 3,
+          choice_text: '多い',
+          vote_counter: 13,
+          question: {
+            question_id: 3,
+            question_type: 3,
+            question_text: 'question 3',
+            form: {
+              form_id: 8,
+              form_title: '学校',
+              form_administrator: null,
+            },
+            choices: [
+              {
+                choice_id: 3,
+                choice_text: '多い',
+                vote_counter: 13,
+              },
+              {
+                choice_id: 4,
+                choice_text: '少ない',
+                vote_counter: 16,
+              },
+            ],
+          },
+          textAnswers: [],
         },
       ],
     },
@@ -97,6 +139,7 @@ export class ChoicesController {
         choice_id: 1,
         choice_text: '選択肢1',
         vote_counter: 0,
+        TextAnswers: [],
       },
     },
   })
@@ -156,9 +199,7 @@ export class ChoicesController {
       },
     },
   })
-  vote(
-    @Param('id') id: number,
-  ): Promise<Choice> {
+  vote(@Param('id') id: number): Promise<Choice> {
     return this.choicesService.vote(id);
   }
 
@@ -186,7 +227,27 @@ export class ChoicesController {
   @ApiBody({
     schema: {
       example: {
-        choice_text: 'choice 3',
+        choice_id: 1,
+        choice_text: 'choice 10',
+        vote_counter: 2,
+        textAnswers: [
+          {
+            answer_id: 1,
+            text: 'テキスト回答',
+          },
+          {
+            answer_id: 2,
+            text: 'テキスト回答',
+          },
+          {
+            answer_id: 11,
+            text: 'テキスト回答',
+          },
+          {
+            answer_id: 15,
+            text: 'テキスト回答',
+          },
+        ],
       },
     },
     description: '更新する選択肢の詳細',
@@ -196,7 +257,27 @@ export class ChoicesController {
     description: '選択肢が正常に更新されました。',
     schema: {
       example: {
-        choice_text: 'choice 3',
+        choice_id: 1,
+        choice_text: 'choice 10',
+        vote_counter: 3,
+        textAnswers: [
+          {
+            answer_id: 1,
+            text: 'テキスト回答',
+          },
+          {
+            answer_id: 2,
+            text: 'テキスト回答',
+          },
+          {
+            answer_id: 11,
+            text: 'テキスト回答',
+          },
+          {
+            answer_id: 15,
+            text: 'テキスト回答',
+          },
+        ],
       },
     },
   })
@@ -206,5 +287,4 @@ export class ChoicesController {
   ): Promise<Choice> {
     return this.choicesService.update(id, updateChoiceDto);
   }
-
 }

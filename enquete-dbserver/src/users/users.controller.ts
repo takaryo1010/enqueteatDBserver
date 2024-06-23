@@ -61,9 +61,20 @@ export class UsersController {
     description: 'ユーザーが正常に取得されました。',
     schema: {
       example: {
-        user_id: 1,
+        user_id: 5,
         user_email: 'example@gmail.com',
-        forms: [],
+        forms: [
+          {
+            form_id: 26,
+            form_title: 'ka',
+            form_administrator: "example@gmail.com",
+          },
+          {
+            form_id: 44,
+            form_title: 'あsd',
+            form_administrator: 'example@gmail.com',
+          },
+        ],
       },
     },
   })
@@ -82,7 +93,6 @@ export class UsersController {
       example: {
         form_id: 1,
       },
-
     },
   })
   @ApiResponse({
@@ -99,6 +109,4 @@ export class UsersController {
   addForm(@Param('email') email: string, @Body('form_id') formId: number) {
     return this.usersService.addForm(email, formId);
   }
-
-
 }

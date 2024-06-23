@@ -99,7 +99,7 @@ export class FormsController {
 
   @Post()
   @ApiOperation({
-    summary: '新規フォームの作成',
+    summary: '新規フォームの作成(CSRFトークン必須)',
     description: 'システム内に新しいフォームを作成します。',
   })
   @ApiBody({
@@ -128,7 +128,7 @@ export class FormsController {
 
   @Delete(':id')
   @ApiOperation({
-    summary: 'IDによるフォームの削除',
+    summary: 'IDによるフォームの削除(CSRFトークン必須)',
     description: '一意の識別子によって特定のフォームを削除します。',
   })
   @ApiParam({ name: 'id', description: '削除するフォームのID' })
@@ -140,7 +140,7 @@ export class FormsController {
 
   @Patch(':id')
   @ApiOperation({
-    summary: 'IDによるフォームタイトルの更新',
+    summary: 'IDによるフォームタイトルの更新(CSRFトークン必須)',
     description: 'IDによって特定のフォームを更新します。',
   })
   @ApiParam({ name: 'id', description: '更新するフォームのID' })

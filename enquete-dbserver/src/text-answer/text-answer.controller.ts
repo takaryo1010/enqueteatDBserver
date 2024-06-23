@@ -26,7 +26,10 @@ export class TextAnswerController {
     schema: {
       example: {
         text: 'テキスト回答',
-        choice: { choice_id: 1 },
+        choice: {
+          choice_id: 1,
+        },
+        answer_id: 27,
       },
     },
     description: 'テキスト回答の内容',
