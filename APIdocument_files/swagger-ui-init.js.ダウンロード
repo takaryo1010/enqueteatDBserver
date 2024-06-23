@@ -1,0 +1,1293 @@
+
+window.onload = function() {
+  // Build a system
+  let url = window.location.search.match(/url=([^&]+)/);
+  if (url && url.length > 1) {
+    url = decodeURIComponent(url[1]);
+  } else {
+    url = window.location.origin;
+  }
+  let options = {
+  "swaggerDoc": {
+    "openapi": "3.0.0",
+    "paths": {
+      "/": {
+        "get": {
+          "operationId": "AppController_getHello",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          }
+        }
+      },
+      "/csrf-token": {
+        "get": {
+          "operationId": "AppController_getCsrfToken",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          }
+        }
+      },
+      "/forms": {
+        "get": {
+          "operationId": "FormsController_findAll",
+          "summary": "全てのフォームを取得",
+          "description": "システム内の全てのフォームのリストを取得します。",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "フォームのリストが正常に取得されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": [
+                      {
+                        "form_id": 1,
+                        "form_administrator": "admin",
+                        "form_title": "サンプルフォームタイトル1"
+                      },
+                      {
+                        "form_id": 2,
+                        "form_administrator": "admin",
+                        "form_title": "サンプルフォームタイトル2"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "forms"
+          ]
+        },
+        "post": {
+          "operationId": "FormsController_create",
+          "summary": "新規フォームの作成(CSRFトークン必須)",
+          "description": "システム内に新しいフォームを作成します。",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "description": "作成するフォームの詳細",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "form_administrator": "admin",
+                    "form_title": "フォームのタイトル2"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "フォームが正常に作成されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": {
+                      "form_title": "サンプルフォームタイトル1",
+                      "form_administrator": "admin",
+                      "form_id": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "forms"
+          ]
+        }
+      },
+      "/forms/{administrator}": {
+        "get": {
+          "operationId": "FormsController_findByAdminister",
+          "summary": "管理者によるフォームの取得",
+          "description": "管理者によって作成されたフォームのリストを取得します。",
+          "parameters": [
+            {
+              "name": "administrator",
+              "required": true,
+              "in": "path",
+              "description": "取得するフォームの管理者",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "フォームのリストが正常に取得されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": [
+                      {
+                        "form_id": 1,
+                        "form_administrator": "admin",
+                        "form_title": "サンプルフォームタイトル1"
+                      },
+                      {
+                        "form_id": 2,
+                        "form_administrator": "admin",
+                        "form_title": "サンプルフォームタイトル2"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "forms"
+          ]
+        }
+      },
+      "/forms/{id}": {
+        "get": {
+          "operationId": "FormsController_findOne",
+          "summary": "IDによるフォームの取得",
+          "description": "IDによって特定のフォームを取得します。",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "取得するフォームのID",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "フォームが正常に取得されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": {
+                      "form_id": 1,
+                      "form_administrator": "admin",
+                      "form_title": "サンプルフォームタイトル1"
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "フォームが見つかりません。"
+            }
+          },
+          "tags": [
+            "forms"
+          ]
+        },
+        "delete": {
+          "operationId": "FormsController_remove",
+          "summary": "IDによるフォームの削除(CSRFトークン必須)",
+          "description": "一意の識別子によって特定のフォームを削除します。",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "削除するフォームのID",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "フォームが正常に削除されました。"
+            },
+            "404": {
+              "description": "フォームが見つかりません。"
+            }
+          },
+          "tags": [
+            "forms"
+          ]
+        },
+        "patch": {
+          "operationId": "FormsController_update",
+          "summary": "IDによるフォームタイトルの更新(CSRFトークン必須)",
+          "description": "IDによって特定のフォームを更新します。",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "更新するフォームのID",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "description": "更新するフォームの詳細",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "form_title": "フォームのタイトル2"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "フォームが正常に更新されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": {
+                      "form_title": "サンプルフォームタイトル1",
+                      "form_administrator": "admin",
+                      "form_id": 1
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "フォームが見つかりません。"
+            }
+          },
+          "tags": [
+            "forms"
+          ]
+        }
+      },
+      "/questions": {
+        "get": {
+          "operationId": "QuestionsController_findAll",
+          "summary": "全ての質問を取得",
+          "description": "システム内の全ての質問のリストを取得します。",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "質問のリストが正常に取得されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": [
+                      [
+                        {
+                          "question_id": 1,
+                          "question_type": 0,
+                          "question_text": "question 1",
+                          "choices": [
+                            {
+                              "choice_id": 1,
+                              "choice_text": "choice 3",
+                              "vote_counter": 2,
+                              "textAnswers": [
+                                {
+                                  "answer_id": 1,
+                                  "text": "テキスト回答"
+                                },
+                                {
+                                  "answer_id": 2,
+                                  "text": "テキスト回答"
+                                },
+                                {
+                                  "answer_id": 11,
+                                  "text": "テキスト回答"
+                                },
+                                {
+                                  "answer_id": 15,
+                                  "text": "テキスト回答"
+                                }
+                              ]
+                            }
+                          ],
+                          "form": {
+                            "form_id": 6,
+                            "form_title": "フォームのタイトル6",
+                            "form_administrator": null
+                          }
+                        },
+                        {
+                          "question_id": 2,
+                          "question_type": 0,
+                          "question_text": "さしすせそ",
+                          "choices": [
+                            {
+                              "choice_id": 2,
+                              "choice_text": "たちつてと",
+                              "vote_counter": 1,
+                              "textAnswers": []
+                            }
+                          ],
+                          "form": {
+                            "form_id": 7,
+                            "form_title": "あいうえお",
+                            "form_administrator": null
+                          }
+                        },
+                        {
+                          "question_id": 3,
+                          "question_type": 3,
+                          "question_text": "question 3",
+                          "choices": [
+                            {
+                              "choice_id": 3,
+                              "choice_text": "多い",
+                              "vote_counter": 13,
+                              "textAnswers": []
+                            },
+                            {
+                              "choice_id": 4,
+                              "choice_text": "少ない",
+                              "vote_counter": 16,
+                              "textAnswers": []
+                            }
+                          ],
+                          "form": {
+                            "form_id": 8,
+                            "form_title": "学校",
+                            "form_administrator": null
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "questions"
+          ]
+        },
+        "post": {
+          "operationId": "QuestionsController_create",
+          "summary": "新規質問の作成",
+          "description": "システム内に新しい質問を作成します。",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "description": "作成する質問の詳細",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "question_text": "question 3",
+                    "question_type": 1,
+                    "form": {
+                      "form_id": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "質問が正常に作成されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": {
+                      "question_text": "クエスチョンテキスト3",
+                      "question_type": 1,
+                      "form": {
+                        "form_id": 1
+                      },
+                      "question_id": 3
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "questions"
+          ]
+        }
+      },
+      "/questions/{id}": {
+        "get": {
+          "operationId": "QuestionsController_findOne",
+          "summary": "IDによる質問の取得(CSRFトークン必須)",
+          "description": "IDによって特定の質問を取得します。",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "取得する質問のID",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "質問が正常に取得されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": {
+                      "question_id": 1,
+                      "question_type": 0,
+                      "question_text": "question 1",
+                      "form": {
+                        "form_id": 6,
+                        "form_title": "フォームのタイトル6",
+                        "form_administrator": null
+                      },
+                      "choices": [
+                        {
+                          "choice_id": 1,
+                          "choice_text": "choice 3",
+                          "vote_counter": 2,
+                          "textAnswers": [
+                            {
+                              "answer_id": 1,
+                              "text": "テキスト回答"
+                            },
+                            {
+                              "answer_id": 2,
+                              "text": "テキスト回答"
+                            },
+                            {
+                              "answer_id": 11,
+                              "text": "テキスト回答"
+                            },
+                            {
+                              "answer_id": 15,
+                              "text": "テキスト回答"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "questions"
+          ]
+        },
+        "delete": {
+          "operationId": "QuestionsController_remove",
+          "summary": "IDによる質問の削除",
+          "description": "IDによって特定の質問を削除します。",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "削除する質問のID",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "質問が正常に削除されました。"
+            },
+            "404": {
+              "description": "質問が見つかりません。"
+            }
+          },
+          "tags": [
+            "questions"
+          ]
+        },
+        "patch": {
+          "operationId": "QuestionsController_update",
+          "summary": "IDによる質問の更新",
+          "description": "IDによって特定の質問テキストを更新します。",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "更新する質問のID",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "question_id": 1,
+                    "question_type": 3,
+                    "question_text": "questionqqq",
+                    "form": {
+                      "form_id": 6,
+                      "form_title": "フォームのタイトル6",
+                      "form_administrator": null
+                    },
+                    "choices": [
+                      {
+                        "choice_id": 1,
+                        "choice_text": "choice 3",
+                        "vote_counter": 2,
+                        "textAnswers": [
+                          {
+                            "answer_id": 1,
+                            "text": "テキスト回答"
+                          },
+                          {
+                            "answer_id": 2,
+                            "text": "テキスト回答"
+                          },
+                          {
+                            "answer_id": 11,
+                            "text": "テキスト回答"
+                          },
+                          {
+                            "answer_id": 15,
+                            "text": "テキスト回答"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "questions"
+          ]
+        }
+      },
+      "/questions/{formId}/form": {
+        "get": {
+          "operationId": "QuestionsController_findOneByFormId",
+          "summary": "フォームIDによる質問の取得",
+          "description": "フォームIDによって特定の質問を取得します。",
+          "parameters": [
+            {
+              "name": "formId",
+              "required": true,
+              "in": "path",
+              "description": "取得する質問のフォームID",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "質問が正常に取得されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": [
+                      {
+                        "question_id": 1,
+                        "question_type": 3,
+                        "question_text": "questionqqq",
+                        "form": {
+                          "form_id": 6,
+                          "form_title": "フォームのタイトル6",
+                          "form_administrator": null
+                        },
+                        "choices": [
+                          {
+                            "choice_id": 1,
+                            "choice_text": "choice 3",
+                            "vote_counter": 2,
+                            "textAnswers": [
+                              {
+                                "answer_id": 1,
+                                "text": "テキスト回答"
+                              },
+                              {
+                                "answer_id": 2,
+                                "text": "テキスト回答"
+                              },
+                              {
+                                "answer_id": 11,
+                                "text": "テキスト回答"
+                              },
+                              {
+                                "answer_id": 15,
+                                "text": "テキスト回答"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "questions"
+          ]
+        }
+      },
+      "/choices": {
+        "get": {
+          "operationId": "ChoicesController_findAll",
+          "summary": "全ての選択肢を取得",
+          "description": "システム内の全ての選択肢のリストを取得します。",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "選択肢のリストが正常に取得されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": [
+                      {
+                        "choice_id": 1,
+                        "choice_text": "choice 3",
+                        "vote_counter": 2,
+                        "question": {
+                          "question_id": 1,
+                          "question_type": 3,
+                          "question_text": "questionqqq",
+                          "form": {
+                            "form_id": 6,
+                            "form_title": "フォームのタイトル6",
+                            "form_administrator": null
+                          },
+                          "choices": [
+                            {
+                              "choice_id": 1,
+                              "choice_text": "choice 3",
+                              "vote_counter": 2
+                            }
+                          ]
+                        },
+                        "textAnswers": [
+                          {
+                            "answer_id": 1,
+                            "text": "テキスト回答"
+                          },
+                          {
+                            "answer_id": 2,
+                            "text": "テキスト回答"
+                          },
+                          {
+                            "answer_id": 11,
+                            "text": "テキスト回答"
+                          },
+                          {
+                            "answer_id": 15,
+                            "text": "テキスト回答"
+                          }
+                        ]
+                      },
+                      {
+                        "choice_id": 2,
+                        "choice_text": "たちつてと",
+                        "vote_counter": 1,
+                        "question": {
+                          "question_id": 2,
+                          "question_type": 0,
+                          "question_text": "さしすせそ",
+                          "form": {
+                            "form_id": 7,
+                            "form_title": "あいうえお",
+                            "form_administrator": null
+                          },
+                          "choices": [
+                            {
+                              "choice_id": 2,
+                              "choice_text": "たちつてと",
+                              "vote_counter": 1
+                            }
+                          ]
+                        },
+                        "textAnswers": []
+                      },
+                      {
+                        "choice_id": 3,
+                        "choice_text": "多い",
+                        "vote_counter": 13,
+                        "question": {
+                          "question_id": 3,
+                          "question_type": 3,
+                          "question_text": "question 3",
+                          "form": {
+                            "form_id": 8,
+                            "form_title": "学校",
+                            "form_administrator": null
+                          },
+                          "choices": [
+                            {
+                              "choice_id": 3,
+                              "choice_text": "多い",
+                              "vote_counter": 13
+                            },
+                            {
+                              "choice_id": 4,
+                              "choice_text": "少ない",
+                              "vote_counter": 16
+                            }
+                          ]
+                        },
+                        "textAnswers": []
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "choices"
+          ]
+        },
+        "post": {
+          "operationId": "ChoicesController_create",
+          "summary": "新規選択肢の作成",
+          "description": "システム内に新しい選択肢を作成します。",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "description": "作成する選択肢の詳細",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "choice_text": "choice 3",
+                    "vote_counter": 0,
+                    "question": {
+                      "question_id": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "選択肢が正常に作成されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": {
+                      "choice_text": "choice 3",
+                      "vote_counter": 0,
+                      "question": {
+                        "question_id": 1
+                      },
+                      "choice_id": 3
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "choices"
+          ]
+        }
+      },
+      "/choices/{id}": {
+        "get": {
+          "operationId": "ChoicesController_findOne",
+          "summary": "IDによる選択肢の取得",
+          "description": "IDによって特定の選択肢を取得します。",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "取得する選択肢のID",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "選択肢が正常に取得されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": {
+                      "choice_id": 1,
+                      "choice_text": "選択肢1",
+                      "vote_counter": 0,
+                      "TextAnswers": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "choices"
+          ]
+        },
+        "delete": {
+          "operationId": "ChoicesController_remove",
+          "summary": "IDによる選択肢の削除",
+          "description": "IDによって特定の選択肢を削除します。",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "削除する選択肢のID",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "選択肢が正常に削除されました。"
+            },
+            "404": {
+              "description": "選択肢が見つかりません。"
+            }
+          },
+          "tags": [
+            "choices"
+          ]
+        },
+        "patch": {
+          "operationId": "ChoicesController_update",
+          "summary": "IDによる選択肢の更新",
+          "description": "IDによって特定の選択肢を更新します。",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "更新する選択肢のID",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "description": "更新する選択肢の詳細",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "choice_id": 1,
+                    "choice_text": "choice 10",
+                    "vote_counter": 2,
+                    "textAnswers": [
+                      {
+                        "answer_id": 1,
+                        "text": "テキスト回答"
+                      },
+                      {
+                        "answer_id": 2,
+                        "text": "テキスト回答"
+                      },
+                      {
+                        "answer_id": 11,
+                        "text": "テキスト回答"
+                      },
+                      {
+                        "answer_id": 15,
+                        "text": "テキスト回答"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "選択肢が正常に更新されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": {
+                      "choice_id": 1,
+                      "choice_text": "choice 10",
+                      "vote_counter": 3,
+                      "textAnswers": [
+                        {
+                          "answer_id": 1,
+                          "text": "テキスト回答"
+                        },
+                        {
+                          "answer_id": 2,
+                          "text": "テキスト回答"
+                        },
+                        {
+                          "answer_id": 11,
+                          "text": "テキスト回答"
+                        },
+                        {
+                          "answer_id": 15,
+                          "text": "テキスト回答"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "choices"
+          ]
+        }
+      },
+      "/choices/{id}/vote": {
+        "patch": {
+          "operationId": "ChoicesController_vote",
+          "summary": "選択肢の投票",
+          "description": "選択肢に投票します。",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "description": "投票する選択肢のID",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "選択肢が正常に投票されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": {
+                      "choice_id": 1,
+                      "choice_text": "選択肢1",
+                      "vote_counter": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "choices"
+          ]
+        }
+      },
+      "/users": {
+        "post": {
+          "operationId": "UsersController_create",
+          "summary": "ユーザーの作成",
+          "description": "新しいユーザーを作成します。",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "user_email": "example@gmail.com"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "ユーザーが正常に作成されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": {
+                      "user_id": 1,
+                      "user_email": "example@gmail.com",
+                      "forms": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "users"
+          ]
+        }
+      },
+      "/users/{email}": {
+        "get": {
+          "operationId": "UsersController_findOne",
+          "summary": "ユーザーの取得",
+          "description": "指定されたメールアドレスのユーザーを取得します。",
+          "parameters": [
+            {
+              "name": "email",
+              "required": true,
+              "in": "path",
+              "description": "取得するユーザーのメールアドレス",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ユーザーが正常に取得されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": {
+                      "user_id": 5,
+                      "user_email": "example@gmail.com",
+                      "forms": [
+                        {
+                          "form_id": 26,
+                          "form_title": "ka",
+                          "form_administrator": "example@gmail.com"
+                        },
+                        {
+                          "form_id": 44,
+                          "form_title": "あsd",
+                          "form_administrator": "example@gmail.com"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "users"
+          ]
+        },
+        "patch": {
+          "operationId": "UsersController_addForm",
+          "summary": "ユーザー情報の更新",
+          "description": "指定されたメールアドレスのユーザー情報を更新します。",
+          "parameters": [
+            {
+              "name": "email",
+              "required": true,
+              "in": "path",
+              "description": "更新するユーザーのメールアドレス",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "form_id": 1
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "ユーザー情報が正常に更新されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": {
+                      "user_id": 1,
+                      "user_email": "example@gmail.com",
+                      "forms": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "users"
+          ]
+        }
+      },
+      "/text-answer": {
+        "post": {
+          "operationId": "TextAnswerController_create",
+          "summary": "テキスト回答の作成",
+          "description": "テキスト回答を作成します。",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "description": "テキスト回答の内容",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "text": "テキスト回答",
+                    "choice": {
+                      "choice_id": 1
+                    },
+                    "answer_id": 27
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "テキスト回答が正常に作成されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": {
+                      "answer_id": 1,
+                      "text": "テキスト回答"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "textAnswer"
+          ]
+        },
+        "get": {
+          "operationId": "TextAnswerController_findAll",
+          "summary": "全てのテキスト回答を取得",
+          "description": "システム内の全てのテキスト回答のリストを取得します。",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "テキスト回答のリストが正常に取得されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": [
+                      {
+                        "answer_id": 1,
+                        "text": "テキスト回答1"
+                      },
+                      {
+                        "answer_id": 2,
+                        "text": "テキスト回答2"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "textAnswer"
+          ]
+        }
+      },
+      "/text-answer/{id}": {
+        "get": {
+          "operationId": "TextAnswerController_findOne",
+          "summary": "特定のテキスト回答を取得",
+          "description": "特定のテキスト回答を取得します。",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "テキスト回答が正常に取得されました。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "example": {
+                      "answer_id": 1,
+                      "text": "テキスト回答1"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "textAnswer"
+          ]
+        }
+      }
+    },
+    "info": {
+      "title": "Forms API",
+      "description": "The Forms API description",
+      "version": "1.0",
+      "contact": {}
+    },
+    "tags": [
+      {
+        "name": "forms",
+        "description": ""
+      }
+    ],
+    "servers": [],
+    "components": {
+      "schemas": {}
+    }
+  },
+  "customOptions": {}
+};
+  url = options.swaggerUrl || url
+  let urls = options.swaggerUrls
+  let customOptions = options.customOptions
+  let spec1 = options.swaggerDoc
+  let swaggerOptions = {
+    spec: spec1,
+    url: url,
+    urls: urls,
+    dom_id: '#swagger-ui',
+    deepLinking: true,
+    presets: [
+      SwaggerUIBundle.presets.apis,
+      SwaggerUIStandalonePreset
+    ],
+    plugins: [
+      SwaggerUIBundle.plugins.DownloadUrl
+    ],
+    layout: "StandaloneLayout"
+  }
+  for (let attrname in customOptions) {
+    swaggerOptions[attrname] = customOptions[attrname];
+  }
+  let ui = SwaggerUIBundle(swaggerOptions)
+
+  if (customOptions.initOAuth) {
+    ui.initOAuth(customOptions.initOAuth)
+  }
+
+  if (customOptions.authAction) {
+    ui.authActions.authorize(customOptions.authAction)
+  }
+  
+  window.ui = ui
+}
